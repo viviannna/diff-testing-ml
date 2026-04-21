@@ -37,10 +37,12 @@ if __name__ == "__main__":
     symbolic_text = help.format_generated_seq(ops_applied, values, seed_values)
     (output_dir / "symbolic_exec.txt").write_text(symbolic_text)
 
+    
 
     # 2. EXECUTE THE SEQUENCES 
 
     initial_arrays = initialize_seed_arrays(seed_values, rng_seed=84)
+
 
     torch_exec = SequenceExecutor(seed_values, ops_applied, "torch", initial_arrays)
     tf_exec    = SequenceExecutor(seed_values, ops_applied, "tf", initial_arrays)

@@ -8,6 +8,10 @@ import tensorflow as tf
 from values import Value
 from operations import OperationInstance
 
+from ml_types import MatrixInstance
+
+from ml_types import MatrixInstance
+
 def initialize_seed_arrays(
     seed_values: list[Value],
     rng_seed: int = 84,
@@ -15,9 +19,6 @@ def initialize_seed_arrays(
     high: float = 2.0,
     np_dtype: np.dtype = np.float32,
 ) -> dict[str, np.ndarray]:
-    """
-    Create framework-independent concrete NumPy arrays for each symbolic seed.
-    """
     rng = np.random.default_rng(rng_seed)
     initial_arrays: dict[str, np.ndarray] = {}
 
@@ -28,7 +29,17 @@ def initialize_seed_arrays(
             raise ValueError(f"Duplicate seed name detected: {seed.name}")
 
         rows, cols = seed.shape
-        arr = rng.uniform(low=low, high=high, size=(rows, cols)).astype(np_dtype)
+
+        if seed.matrix_type == MatrixInstance.Symmetric:
+            if rows != cols:
+                raise ValueError(
+                    f"Symmetric matrix must be square: {seed.name} has shape {seed.shape}"
+                )
+            base = rng.uniform(low=low, high=high, size=(rows, cols)).astype(np_dtype)
+            arr = ((base + base.T) / 2).astype(np_dtype)
+        else:
+            arr = rng.uniform(low=low, high=high, size=(rows, cols)).astype(np_dtype)
+
         initial_arrays[seed.name] = arr
 
     return initial_arrays
@@ -47,25 +58,7 @@ class SequenceExecutor:
         self.initial_arrays = self._copy_initial_arrays(initial_arrays)
     # ---------- Initialization ----------
 
-    def _initialize_seed_arrays(self) -> Dict[str, np.ndarray]:
-        initial_arrays: Dict[str, np.ndarray] = {}
-
-        for seed in self.seed_values:
-            if seed.shape is None:
-                raise ValueError(f"Seed value {seed.name} has no shape.")
-            if seed.name in initial_arrays:
-                raise ValueError(f"Duplicate seed name detected: {seed.name}")
-
-            rows, cols = seed.shape
-            arr = self.rng.uniform(
-                low=self.low,
-                high=self.high,
-                size=(rows, cols),
-            ).astype(self.np_dtype)
-
-            initial_arrays[seed.name] = arr
-
-        return initial_arrays
+   
 
     def _copy_initial_arrays(
         self,

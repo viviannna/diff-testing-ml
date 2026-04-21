@@ -4,13 +4,10 @@ from typing import Dict, List, Optional, Any
 import numpy as np
 import torch
 import tensorflow as tf
-
 from values import Value
 from operations import OperationInstance
-
 from ml_types import MatrixInstance
 
-from ml_types import MatrixInstance
 
 def initialize_seed_arrays(
     seed_values: list[Value],
@@ -18,7 +15,10 @@ def initialize_seed_arrays(
     low: float = -2.0,
     high: float = 2.0,
     np_dtype: np.dtype = np.float32,
+    p_nan: float = 0.05,   # probability of injecting a NaN
+    p_inf: float = 0.02,   # probability of injecting an Inf
 ) -> dict[str, np.ndarray]:
+
     rng = np.random.default_rng(rng_seed)
     initial_arrays: dict[str, np.ndarray] = {}
 
@@ -30,20 +30,42 @@ def initialize_seed_arrays(
 
         rows, cols = seed.shape
 
+        # --- base generation ---
         if seed.matrix_type == MatrixInstance.Symmetric:
             if rows != cols:
                 raise ValueError(
                     f"Symmetric matrix must be square: {seed.name} has shape {seed.shape}"
                 )
             base = rng.uniform(low=low, high=high, size=(rows, cols)).astype(np_dtype)
-            arr = ((base + base.T) / 2).astype(np_dtype)
+            arr = (base + base.T) / 2
         else:
             arr = rng.uniform(low=low, high=high, size=(rows, cols)).astype(np_dtype)
 
-        initial_arrays[seed.name] = arr
+        # --- inject NaN / Inf (controlled) ---
+        if rng.random() < p_nan:
+            i = rng.integers(0, rows)
+            j = rng.integers(0, cols)
+
+            if seed.matrix_type == MatrixInstance.Symmetric and rows == cols:
+                arr[i, j] = np.nan
+                arr[j, i] = np.nan  # preserve symmetry
+            else:
+                arr[i, j] = np.nan
+
+        if rng.random() < p_inf:
+            i = rng.integers(0, rows)
+            j = rng.integers(0, cols)
+            val = np.inf if rng.random() < 0.5 else -np.inf
+
+            if seed.matrix_type == MatrixInstance.Symmetric and rows == cols:
+                arr[i, j] = val
+                arr[j, i] = val
+            else:
+                arr[i, j] = val
+
+        initial_arrays[seed.name] = arr.astype(np_dtype)
 
     return initial_arrays
-
 class SequenceExecutor:
     def __init__(
         self,

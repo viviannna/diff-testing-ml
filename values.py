@@ -7,3 +7,5 @@ from ml_types import Type
 class Value:
     name: str
     type: Type
+    shape: tuple[int, int] | None = None # None for scalars, (row, col) for matricies
+    

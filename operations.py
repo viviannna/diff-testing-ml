@@ -1,6 +1,7 @@
 # Operations we currently support. These are the GENERIC ML ops. 
 from dataclasses import dataclass
 from ml_types import Type
+from values import Value
 
 @dataclass
 class Operation:

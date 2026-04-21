@@ -1,3 +1,7 @@
+import random
+from values import Value
+from operations import OperationInstance
+
 
 class Printer:
     rng: random.Random
@@ -54,7 +58,7 @@ class Printer:
 
 
     # Prints out current values and pool of legal operations at each step
-    def print_step_decisions(self, current_len: int, values: List[Value], legal_ops: List[OperationInstance], op_inst: OperationInstance):
+    def print_step_decisions(self, current_len: int, values: list[Value], legal_ops: list[OperationInstance], op_inst: OperationInstance):
         print(f"\n\nStep {current_len}:")
         print("Available Values:")
         for v in values:

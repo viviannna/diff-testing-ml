@@ -1,24 +1,32 @@
 
-class Helper:
+class Printer:
     rng: random.Random
 
     def __init__(self, rng: random.Random):
         self.rng = rng
 
-    # Prints out the original seed values and the entire generated sequence
+    def format_value(self, v: Value) -> str:
+        if v.shape is None:
+            return f"{v.name}:{v.type.value}"
+        return f"{v.name}:{v.type.value}{v.shape}"
+
+
     def print_generated_seq(self, ops_applied: List[OperationInstance], values: List[Value], og_values: List[Value]):
         print(f"Random Seed: {self.rng.seed}:")
-        print(f"Original Seed Values:")
+        print("Original Seed Values:")
         for v in og_values:
-            print(f" {v.name}:{v.type.value}")
-        print("Generated Sequence:")
-        for i, op in enumerate(ops_applied):
-            print(f" {i}: {op.operation.name}({', '.join(f'{a.name}:{a.type.value}' for a in op.args)}) -> {op.operation.output_type.value}")
+            print(f" {self.format_value(v)}")
 
-        # want to print out all the existing values
+        print("Generated Sequence:")
+        output_values = values[len(og_values):]
+        for i, (op, out_val) in enumerate(zip(ops_applied, output_values)):
+            args_str = ", ".join(self.format_value(a) for a in op.args)
+            print(f" {i}: {op.operation.name}({args_str}) -> {self.format_value(out_val)}")
+
         print("Existing Values:")
         for v in values:
-            print(f" {v.name}:{v.type.value}")
+            print(f" {self.format_value(v)}")
+
 
     # Prints out current values and pool of legal operations at each step
     def print_step_decisions(self, current_len: int, values: List[Value], legal_ops: List[OperationInstance], op_inst: OperationInstance):

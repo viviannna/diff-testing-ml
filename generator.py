@@ -2,19 +2,20 @@ from values import Value
 from operations import Operations, Operation
 from dataclasses import dataclass
 from ml_types import Type
+from helpers import Helpers
 import random
 
 RANDOM_SEED = 84
+rng = random.Random(RANDOM_SEED)
 
-random.seed(RANDOM_SEED)
-
-
+help = Helpers(rng) 
 
 # Example Usage
 # OperationInstance(
 #     operation=Add,
 #     args=[x0, x1]
 # )
+
 @dataclass
 class OperationInstance:
     operation: Operation
@@ -59,14 +60,13 @@ def get_legal_operations(available_values: List[Value], current_len: int, n: int
 
     return legal_ops
 
-def instantiate_seed_matrices(count: int = 2) -> List[Value]:
+
+# Creates the initial inputs
+def instantiate_seed_matrices(count: int, rng: random.Random) -> List[Value]:
     """Create initial matrix Values named x0, x1, ..."""
     return [Value(f"x{i}", Type.Matrix) for i in range(count)]
 
-
-
-
-# "computes" the output after applying the operation instance 
+# "Computes" the output after applying the operation instance 
 def apply_operation(op_inst: OperationInstance, temp_index: int) -> Value:
     """
     Create a new Value representing the output of the operation instance.
@@ -76,29 +76,30 @@ def apply_operation(op_inst: OperationInstance, temp_index: int) -> Value:
     name = f"t{temp_index}"
     return Value(name, out_type)
 
-        
-def build_sequence(seed_values: List[Value], n: int) -> Tuple[List[OperationInstance], List[Value]]:
+def build_sequence(num_seed_values: int, seq_length: int, rng: random.Random) -> Tuple[List[OperationInstance], List[Value]]:
     """
-    Build a deterministic sequence of n operations.
+    Build a deterministic sequence of seq_len operations.
     - seed_values: initial Values (should include matrices).
     - n: desired number of operations.
     Returns (operations_applied, all_values_after_execution).
     Note: chooses first legal op each step; replace selection logic as needed.
     """
+
+    seed_values = instantiate_seed_matrices(num_seed_values, rng)
     values = list(seed_values) # values that are currently usable
 
     ops_applied: List[OperationInstance] = [] # history of all operations applied 
     current_len = 0
     next_temp_idx = 0 # Used to uniquely identify created variables
 
-    while current_len < n:
+    while current_len < seq_length:
 
         # choose from legal_ops and apply to create a new value
-        legal_ops = get_legal_operations(values, current_len, n)
+        legal_ops = get_legal_operations(values, current_len, seq_length)
         if not legal_ops:
             print(f"No legal operations available at step {current_len}. Stopping early.")
             break  # stuck; no legal op available
-        op_inst = random.choice(legal_ops)  
+        op_inst = rng.choice(legal_ops)  
         new_val = apply_operation(op_inst, next_temp_idx)
 
         # print_step_decisions(current_len, values, legal_ops, op_inst)
@@ -110,42 +111,11 @@ def build_sequence(seed_values: List[Value], n: int) -> Tuple[List[OperationInst
         current_len += 1
         next_temp_idx += 1
 
-    print_generated_seq(ops_applied, values, seed_values)
+    help.print_generated_seq(ops_applied, values, seed_values)
     return ops_applied, values
-
-def print_generated_seq(ops_applied: List[OperationInstance], values: List[Value], og_values: List[Value]):
-    print(f"Random Seed: {RANDOM_SEED}:")
-    print(f"Original Seed Values:")
-    for v in og_values:
-        print(f" {v.name}:{v.type.value}")
-    print("Generated Sequence:")
-    for i, op in enumerate(ops_applied):
-        print(f" {i}: {op.operation.name}({', '.join(f'{a.name}:{a.type.value}' for a in op.args)}) -> {op.operation.output_type.value}")
-
-    # want to print out all the existing values
-    print("Existing Values:")
-    for v in values:
-        print(f" {v.name}:{v.type.value}")
-
-
-def print_step_decisions(current_len: int, values: List[Value], legal_ops: List[OperationInstance], op_inst: OperationInstance):
-    print(f"\n\nStep {current_len}:")
-    print("Available Values:")
-    for v in values:
-        print(f" {v.name}:{v.type.value}")
-
-    print("Legal Ops: ")
-    for i, op in enumerate(legal_ops):
-        print(f" {i}: {op.operation.name}({', '.join(f'{a.name}:{a.type.value}' for a in op.args)}) -> {op.operation.output_type.value}")
-    
-    print("Chosen Op:")
-    print(f" {op_inst.operation.name}({', '.join(f'{a.name}:{a.type.value}' for a in op_inst.args)}) -> {op_inst.operation.output_type.value}")
 
 
 # TODO: Init random folder name based off time and just pipe the print statements there
-
-
-seed_matrices = instantiate_seed_matrices(3)
-build_sequence(seed_matrices, 5)
+build_sequence(num_seed_values=3, seq_length=5, rng=rng)
 
 

@@ -7,6 +7,11 @@ from executor import SequenceExecutor
 import random
 
 
+
+
+
+
+
 # Boolean check that the shapes of the arguments are compatible with the operation
 def shapes_work(op: Operation, args: list[Value]) -> bool:
     """Check if the shapes of the arguments are compatible with the operation.
@@ -57,20 +62,23 @@ def get_legal_operations(available_values: list[Value], current_len: int, n: int
     Sum (scalar-producing) ops are only allowed when current_len == n-1 (the final step).
     """
     legal_ops: list[OperationInstance] = []
-    force_scalar = (current_len == n - 1)
+    # force_scalar = (current_len == n - 1)
 
-    # for final iteration, forcing to return scalar values for easy comparison
-    # TODO: Get rid of this eventually. Want to transition to comparing intermediary states at this point 
-    if force_scalar:
-        candidate_ops = [op for op in Operations if op.output_type == Type.Scalar]
-    else:
-        candidate_ops = [op for op in Operations if op.output_type != Type.Scalar]
+    # # for final iteration, forcing to return scalar values for easy comparison
+    # # TODO: Get rid of this eventually. Want to transition to comparing intermediary states at this point 
+    # if force_scalar:
+    #     candidate_ops = [op for op in Operations if op.output_type == Type.Scalar]
+    # else:
+    #     candidate_ops = [op for op in Operations if op.output_type != Type.Scalar]
+
+
+    candidate_ops = [op for op in Operations]
 
     for op in candidate_ops:
         # Prevent producing a scalar before the final step
         # TODO: Revisit. It might be fine to create scalars
-        if op.output_type == Type.Scalar and not force_scalar:
-            continue
+        # if op.output_type == Type.Scalar and not force_scalar:
+        #     continue
 
         # unary operations: only needs one input
         if len(op.input_types) == 1:

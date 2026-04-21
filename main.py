@@ -4,7 +4,7 @@ from comparator import compare_envs
 from generator import build_sequence
 import random
 from printer import Printer
-from executor import SequenceExecutor
+from executor import SequenceExecutor, initialize_seed_arrays
 
 
 
@@ -26,32 +26,28 @@ if __name__ == "__main__":
     help = Printer(rng) 
     output_dir = make_output_dir()
 
+    # 1. SYMBOLIC EXECUTION 
+
     seed_values, ops_applied, values = build_sequence(
         num_seed_values=3,
         seq_length=5,
         rng=rng,
     )
-
-    help.print_generated_seq(ops_applied, values, seed_values)
-
+    # help.print_generated_seq(ops_applied, values, seed_values)
     symbolic_text = help.format_generated_seq(ops_applied, values, seed_values)
     (output_dir / "symbolic_exec.txt").write_text(symbolic_text)
 
-    torch_exec = SequenceExecutor(
-        seed_values=seed_values,
-        ops_applied=ops_applied,
-        framework="torch",
-        rng_seed=84,
-    )
 
-    shared_initial_arrays = torch_exec.get_initial_arrays_copy()
+    # 2. EXECUTE THE SEQUENCES 
 
-    tf_exec = SequenceExecutor(
-        seed_values=seed_values,
-        ops_applied=ops_applied,
-        framework="tf",
-        initial_arrays=shared_initial_arrays,
-    )
+    initial_arrays = initialize_seed_arrays(seed_values, rng_seed=84)
+
+    torch_exec = SequenceExecutor(seed_values, ops_applied, "torch", initial_arrays)
+    tf_exec    = SequenceExecutor(seed_values, ops_applied, "tf", initial_arrays)
+
+    # PyTorch
+
+
 
     (output_dir / "torch_init_values.txt").write_text(
         torch_exec.format_initial_values()
@@ -76,6 +72,9 @@ if __name__ == "__main__":
     torch_env = torch_exec.execute()
     tf_env = tf_exec.execute()
 
+
+
+    print(comparison_report)
     comparison_report = compare_envs(torch_env, tf_env)
     (output_dir / "comparison.txt").write_text(comparison_report)
 

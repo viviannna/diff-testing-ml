@@ -8,34 +8,43 @@ import tensorflow as tf
 from values import Value
 from operations import OperationInstance
 
+def initialize_seed_arrays(
+    seed_values: list[Value],
+    rng_seed: int = 84,
+    low: float = -2.0,
+    high: float = 2.0,
+    np_dtype: np.dtype = np.float32,
+) -> dict[str, np.ndarray]:
+    """
+    Create framework-independent concrete NumPy arrays for each symbolic seed.
+    """
+    rng = np.random.default_rng(rng_seed)
+    initial_arrays: dict[str, np.ndarray] = {}
+
+    for seed in seed_values:
+        if seed.shape is None:
+            raise ValueError(f"Seed value {seed.name} has no shape.")
+        if seed.name in initial_arrays:
+            raise ValueError(f"Duplicate seed name detected: {seed.name}")
+
+        rows, cols = seed.shape
+        arr = rng.uniform(low=low, high=high, size=(rows, cols)).astype(np_dtype)
+        initial_arrays[seed.name] = arr
+
+    return initial_arrays
 
 class SequenceExecutor:
     def __init__(
         self,
-        seed_values: List[Value],
-        ops_applied: List[OperationInstance],
+        seed_values: list[Value],
+        ops_applied: list[OperationInstance],
         framework: str,
-        rng_seed: int = 84,
-        low: float = -2.0,
-        high: float = 2.0,
-        np_dtype: np.dtype = np.float32,
-        initial_arrays: Optional[Dict[str, np.ndarray]] = None,
+        initial_arrays: dict[str, np.ndarray],
     ) -> None:
         self.seed_values = seed_values
         self.ops_applied = ops_applied
         self.framework = framework
-
-        self.rng_seed = rng_seed
-        self.low = low
-        self.high = high
-        self.np_dtype = np_dtype
-        self.rng = np.random.default_rng(rng_seed)
-
-        if initial_arrays is None:
-            self.initial_arrays = self._initialize_seed_arrays()
-        else:
-            self.initial_arrays = self._copy_initial_arrays(initial_arrays)
-
+        self.initial_arrays = self._copy_initial_arrays(initial_arrays)
     # ---------- Initialization ----------
 
     def _initialize_seed_arrays(self) -> Dict[str, np.ndarray]:

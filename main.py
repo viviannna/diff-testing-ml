@@ -23,7 +23,7 @@ if __name__ == "__main__":
     RANDOM_SEED = 84
     rng = random.Random(RANDOM_SEED)
 
-    help = Printer(rng) 
+    help = Printer(rng, RANDOM_SEED) 
     output_dir = make_output_dir()
 
     # 1. SYMBOLIC EXECUTION 
@@ -74,8 +74,9 @@ if __name__ == "__main__":
 
 
 
-    print(comparison_report)
+    
     comparison_report = compare_envs(torch_env, tf_env)
+    print(comparison_report)
     (output_dir / "comparison.txt").write_text(comparison_report)
 
     print(f"Wrote outputs to: {output_dir}")

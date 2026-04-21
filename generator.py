@@ -1,16 +1,10 @@
 from values import Value
 from operations import Operations, Operation, OperationInstance
 from dataclasses import dataclass
-from ml_types import Type
+from ml_types import Type, MatrixTypes, MatrixInstance
 from printer import Printer
 from executor import SequenceExecutor
 import random
-
-
-
-
-
-
 
 # Boolean check that the shapes of the arguments are compatible with the operation
 def shapes_work(op: Operation, args: list[Value]) -> bool:
@@ -100,53 +94,113 @@ def get_legal_operations(available_values: list[Value], current_len: int, n: int
     return legal_ops
 
 
-def create_compatible_shape_pool(rows, cols, rng, next_seed_id):
+def create_compatible_shape_pool(rows, cols, rng, next_seed_id, matrix_type):
     """
-    Create extra compatible matrix Values for a base shape (rows, cols). Attempts to minimize instances of calling (x0, x0) as both inputs. 
-    Returns (new_values, next_seed_id).
+    Create extra compatible matrix Values for a base shape (rows, cols).
     """
-
-    matmul_cols = rng.randint(1, 5)
-    matmul_rows = rng.randint(1, 5)
-
-    compatible_shapes = [
-        (rows, cols),           # for Add/Subtract
-        (rows, cols),           # another same-shape value
-        (cols, matmul_cols),    # right operand for MatMul: (rows, cols) @ (cols, k)
-        (matmul_rows, rows),    # left operand for MatMul: (k, cols) @ (rows, cols)
-    ]
 
     new_values = []
+
+    if matrix_type == MatrixInstance.Random:
+        matmul_cols = rng.randint(1, 5)
+        matmul_rows = rng.randint(1, 5)
+
+        compatible_shapes = [
+            (rows, cols),           # for Add/Subtract
+            (rows, cols),           # another same-shape value
+            (cols, matmul_cols),    # right operand for MatMul
+            (matmul_rows, rows),    # left operand for MatMul
+        ]
+
+    elif matrix_type == MatrixInstance.Symmetric:
+        # symmetric matrices must be square, so rows == cols
+        n = rows
+        compatible_shapes = [
+            (n, n),  # for Add/Subtract
+            (n, n),  # another same-shape value
+            (n, n),  # MatMul-compatible on the right
+            (n, n),  # MatMul-compatible on the left
+        ]
+
+    else:
+        raise ValueError(f"Unknown matrix type: {matrix_type}")
+
     for shape in compatible_shapes:
-        new_values.append(Value(f"x{next_seed_id}", Type.Matrix, shape=shape))
+        new_values.append(
+            Value(
+                f"x{next_seed_id}",
+                Type.Matrix,
+                shape=shape,
+                matrix_type=matrix_type,
+            )
+        )
         next_seed_id += 1
 
     return new_values, next_seed_id
 
 
-# Creates the initial inputs
 def instantiate_seed_matrices(count: int, rng: random.Random) -> list[Value]:
     seed_matrix_sizes = []
     next_seed_id = 0
 
     for _ in range(count):
-        rows = rng.randint(1, 5)
-        cols = rng.randint(1, 5)
+        matrix_type = rng.choice(MatrixTypes)
 
-        seed_matrix_sizes.append(Value(f"x{next_seed_id}", Type.Matrix, shape=(rows, cols)))
+        if matrix_type == MatrixInstance.Random:
+            rows = rng.randint(1, 5)
+            cols = rng.randint(1, 5)
+
+        elif matrix_type == MatrixInstance.Symmetric:
+            n = rng.randint(1, 5)
+            rows, cols = n, n
+
+        else:
+            raise ValueError(f"Unknown matrix type: {matrix_type}")
+
+        seed_matrix_sizes.append(
+            Value(
+                f"x{next_seed_id}",
+                Type.Matrix,
+                shape=(rows, cols),
+                matrix_type=matrix_type,
+            )
+        )
         next_seed_id += 1
 
-        compatible_values, next_seed_id = create_compatible_shape_pool(rows, cols, rng, next_seed_id)
+        compatible_values, next_seed_id = create_compatible_shape_pool(
+            rows, cols, rng, next_seed_id, matrix_type
+        )
         seed_matrix_sizes.extend(compatible_values)
 
     return seed_matrix_sizes
-
 # "Computes" the output after applying the operation instance 
 def apply_operation(op_inst: OperationInstance, temp_index: int) -> Value:
     out_type = op_inst.operation.output_type
     out_shape = infer_output_shape(op_inst.operation, op_inst.args)
     name = f"t{temp_index}"
-    return Value(name, out_type, out_shape)
+
+    matrix_type = None
+
+    # TODO: Verify if properties are preserveed
+    if out_type == Type.Matrix:
+        if op_inst.operation.name in {"Add", "Subtract"}:
+            if all(arg.matrix_type == MatrixInstance.Symmetric for arg in op_inst.args):
+                matrix_type = MatrixInstance.Symmetric
+            else:
+                matrix_type = MatrixInstance.Random
+
+        elif op_inst.operation.name == "Transpose":
+            matrix_type = op_inst.args[0].matrix_type
+
+        elif op_inst.operation.name == "MatMul":
+            matrix_type = MatrixInstance.Random  # safe default
+
+    return Value(
+        name=name,
+        type=out_type,
+        shape=out_shape,
+        matrix_type=matrix_type,
+    )
 
 def build_sequence(num_seed_values: int, seq_length: int, rng: random.Random) -> tuple[list[OperationInstance], list[Value]]:
     """

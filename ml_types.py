@@ -7,3 +7,8 @@ class Type(Enum):
     Scalar = "Scalar"
 
     
+class MatrixInstance(Enum):
+    Random = "Random"
+    Symmetric = "Symmetric"
+
+MatrixTypes = [MatrixInstance.Random, MatrixInstance.Symmetric]

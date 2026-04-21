@@ -6,34 +6,23 @@ from operations import OperationInstance
 class Printer:
     rng: random.Random
 
-    def __init__(self, rng: random.Random):
+    def __init__(self, rng: random.Random, seed_value: int):
         self.rng = rng
+        self.seed_value = seed_value
 
     def format_value(self, v: Value) -> str:
+        matrix_type_str = ""
+        if getattr(v, "matrix_type", None) is not None:
+            matrix_type_str = f"[{v.matrix_type.value}]"
+
         if v.shape is None:
-            return f"{v.name}:{v.type.value}"
-        return f"{v.name}:{v.type.value}{v.shape}"
+            return f"{v.name}:{v.type.value}{matrix_type_str}"
 
-
-    # def print_generated_seq(self, ops_applied: List[OperationInstance], values: List[Value], og_values: List[Value]):
-    #     print(f"Random Seed: {self.rng.seed}:")
-    #     print("Original Seed Values:")
-    #     for v in og_values:
-    #         print(f" {self.format_value(v)}")
-
-    #     print("Generated Sequence:")
-    #     output_values = values[len(og_values):]
-    #     for i, (op, out_val) in enumerate(zip(ops_applied, output_values)):
-    #         args_str = ", ".join(self.format_value(a) for a in op.args)
-    #         print(f" {i}: {op.operation.name}({args_str}) -> {self.format_value(out_val)}")
-
-    #     print("Existing Values:")
-    #     for v in values:
-    #         print(f" {self.format_value(v)}")
+        return f"{v.name}:{v.type.value}{matrix_type_str}{v.shape}"
 
     def format_generated_seq(self, ops_applied, values, og_values) -> str:
         lines = []
-        lines.append(f"Random Seed: {self.rng.seed}:")
+        lines.append(f"Random Seed: {self.seed_value}")
         lines.append("Original Seed Values:")
         for v in og_values:
             lines.append(f" {self.format_value(v)}")

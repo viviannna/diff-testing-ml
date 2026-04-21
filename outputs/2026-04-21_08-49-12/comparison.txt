@@ -1,0 +1,6 @@
+Summary
+  total vars: 20
+  matches: 20
+  mismatches: 0
+
+All values match within tolerance.

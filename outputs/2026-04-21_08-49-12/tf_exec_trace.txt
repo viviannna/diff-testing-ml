@@ -1,0 +1,54 @@
+Framework: tf
+Beginning symbolic replay...
+
+Step 0
+  Symbolic: Add(x12:Matrix(4, 5), x11:Matrix(4, 5)) -> t0
+  Concrete: tf.add(x12, x11)
+  Result shape: (4, 5)
+  Result value:
+[[-2.5098505   3.3889413   1.6058846  -0.575737    1.0830611 ]
+ [ 2.1076512  -0.5540528  -1.0802028  -1.3659396   2.8947523 ]
+ [ 0.15001273 -0.527246    3.0256734  -2.2797205   3.3583345 ]
+ [ 2.9324703  -0.54227495  0.0142214   0.5937597  -2.630335  ]]
+
+Step 1
+  Symbolic: MatMul(x9:Matrix(4, 5), x14:Matrix(5, 4)) -> t1
+  Concrete: tf.linalg.matmul(x9, x14)
+  Result shape: (4, 4)
+  Result value:
+[[ 2.7015924   4.3735614   0.00935395  4.154657  ]
+ [-0.43241778 -2.9089637  -1.0704783  -8.440629  ]
+ [-1.2387139   1.2965317  -0.18416359  2.9825304 ]
+ [-1.2375474  -3.3378673  -0.8010872  -7.526535  ]]
+
+Step 2
+  Symbolic: Transpose(x14:Matrix(5, 4)) -> t2
+  Concrete: tf.transpose(x14, perm=[1, 0])
+  Result shape: (4, 5)
+  Result value:
+[[ 0.60095507  0.7386996  -1.8455147   0.62687296  0.12940453]
+ [ 0.31537658  1.6594349  -1.3468863   1.643467   -0.34985805]
+ [ 0.62814534  0.17559846  0.9833069  -1.1615511   0.02478805]
+ [ 1.5018466   1.8502457   1.7762021   1.8308218  -1.0900282 ]]
+
+Step 3
+  Symbolic: MatMul(x13:Matrix(5, 3), x2:Matrix(3, 1)) -> t3
+  Concrete: tf.linalg.matmul(x13, x2)
+  Result shape: (5, 1)
+  Result value:
+[[-1.3342769 ]
+ [ 1.3811152 ]
+ [ 0.28407168]
+ [-0.4389163 ]
+ [-1.0099957 ]]
+
+Step 4
+  Symbolic: Sum(x8:Matrix(3, 2)) -> t4
+  Concrete: tf.reduce_sum(x8)
+  Result shape: ()
+  Result value:
+3.1254730224609375
+
+Framework: tf
+Final result:
+tf.Tensor(3.125473, shape=(), dtype=float32)

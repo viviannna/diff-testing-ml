@@ -1,0 +1,46 @@
+Random Seed: <bound method Random.seed of <random.Random object at 0xc711fd420>>:
+Original Seed Values:
+ x0:Matrix(3, 1)
+ x1:Matrix(3, 1)
+ x2:Matrix(3, 1)
+ x3:Matrix(1, 4)
+ x4:Matrix(1, 3)
+ x5:Matrix(5, 3)
+ x6:Matrix(5, 3)
+ x7:Matrix(5, 3)
+ x8:Matrix(3, 2)
+ x9:Matrix(4, 5)
+ x10:Matrix(4, 5)
+ x11:Matrix(4, 5)
+ x12:Matrix(4, 5)
+ x13:Matrix(5, 3)
+ x14:Matrix(5, 4)
+
+Generated Sequence:
+ 0: Add(x12:Matrix(4, 5), x11:Matrix(4, 5)) -> t0:Matrix(4, 5)
+ 1: MatMul(x9:Matrix(4, 5), x14:Matrix(5, 4)) -> t1:Matrix(4, 4)
+ 2: Transpose(x14:Matrix(5, 4)) -> t2:Matrix(4, 5)
+ 3: MatMul(x13:Matrix(5, 3), x2:Matrix(3, 1)) -> t3:Matrix(5, 1)
+ 4: Sum(x8:Matrix(3, 2)) -> t4:Scalar
+
+Existing Values:
+ x0:Matrix(3, 1)
+ x1:Matrix(3, 1)
+ x2:Matrix(3, 1)
+ x3:Matrix(1, 4)
+ x4:Matrix(1, 3)
+ x5:Matrix(5, 3)
+ x6:Matrix(5, 3)
+ x7:Matrix(5, 3)
+ x8:Matrix(3, 2)
+ x9:Matrix(4, 5)
+ x10:Matrix(4, 5)
+ x11:Matrix(4, 5)
+ x12:Matrix(4, 5)
+ x13:Matrix(5, 3)
+ x14:Matrix(5, 4)
+ t0:Matrix(4, 5)
+ t1:Matrix(4, 4)
+ t2:Matrix(4, 5)
+ t3:Matrix(5, 1)
+ t4:Scalar

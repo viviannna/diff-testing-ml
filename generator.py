@@ -5,14 +5,6 @@ from ml_types import Type
 from printer import Printer
 from executor import SequenceExecutor
 import random
-from pathlib import Path
-from datetime import datetime
-
-RANDOM_SEED = 84
-rng = random.Random(RANDOM_SEED)
-
-help = Printer(rng) 
-
 
 
 # Boolean check that the shapes of the arguments are compatible with the operation
@@ -57,14 +49,14 @@ def infer_output_shape(op: Operation, args: list[Value]) -> tuple[int, int] | No
 
     return None
 
-def get_legal_operations(available_values: List[Value], current_len: int, n: int) -> List[OperationInstance]:
+def get_legal_operations(available_values: list[Value], current_len: int, n: int) -> list[OperationInstance]:
     """
     Return a list of operation instances that can be applied to available_values.
     - current_len: number of operations already in the sequence.
     - n: desired total sequence length (number of operations).
     Sum (scalar-producing) ops are only allowed when current_len == n-1 (the final step).
     """
-    legal_ops: List[OperationInstance] = []
+    legal_ops: list[OperationInstance] = []
     force_scalar = (current_len == n - 1)
 
     # for final iteration, forcing to return scalar values for easy comparison
@@ -125,7 +117,7 @@ def create_compatible_shape_pool(rows, cols, rng, next_seed_id):
 
 
 # Creates the initial inputs
-def instantiate_seed_matrices(count: int, rng: random.Random) -> List[Value]:
+def instantiate_seed_matrices(count: int, rng: random.Random) -> list[Value]:
     seed_matrix_sizes = []
     next_seed_id = 0
 
@@ -148,7 +140,7 @@ def apply_operation(op_inst: OperationInstance, temp_index: int) -> Value:
     name = f"t{temp_index}"
     return Value(name, out_type, out_shape)
 
-def build_sequence(num_seed_values: int, seq_length: int, rng: random.Random) -> Tuple[List[OperationInstance], List[Value]]:
+def build_sequence(num_seed_values: int, seq_length: int, rng: random.Random) -> tuple[list[OperationInstance], list[Value]]:
     """
     Build a deterministic sequence of seq_len operations. (Symbolic execution sequence)
     - seed_values: initial Values (should include matrices).
@@ -160,7 +152,7 @@ def build_sequence(num_seed_values: int, seq_length: int, rng: random.Random) ->
     seed_values = instantiate_seed_matrices(num_seed_values, rng)
     values = list(seed_values) # values that are currently usable
 
-    ops_applied: List[OperationInstance] = [] # history of all operations applied 
+    ops_applied: list[OperationInstance] = [] # history of all operations applied 
     current_len = 0
     next_temp_idx = 0 # Used to uniquely identify created variables
 
@@ -183,53 +175,4 @@ def build_sequence(num_seed_values: int, seq_length: int, rng: random.Random) ->
         current_len += 1
         next_temp_idx += 1
 
-    help.print_generated_seq(ops_applied, values, seed_values)
     return seed_values, ops_applied, values
-
-def make_output_dir() -> Path:
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    output_dir = Path("outputs") / timestamp
-    output_dir.mkdir(parents=True, exist_ok=True)
-    return output_dir
-
-
-
-if __name__ == "__main__":
-    output_dir = make_output_dir()
-
-    seed_values, ops_applied, values = build_sequence(
-        num_seed_values=3,
-        seq_length=5,
-        rng=rng,
-    )
-
-    # Write symbolic execution
-    symbolic_text = help.format_generated_seq(ops_applied, values, seed_values)
-    (output_dir / "symbolic_exec.txt").write_text(symbolic_text)
-
-    torch_exec = SequenceExecutor(
-        seed_values=seed_values,
-        ops_applied=ops_applied,
-        framework="torch",
-        rng_seed=84,
-    )
-
-    shared_initial_arrays = torch_exec.get_initial_arrays_copy()
-
-    # TODO: make naming more consistent
-    # Write torch init values
-    (output_dir / "torch_init_values.txt").write_text(
-        torch_exec.format_initial_values()
-    )
-
-    # Write torch verbose execution trace + final result
-    (output_dir / "torch_exec_trace.txt").write_text(
-        torch_exec.format_execution_trace()
-    )
-
-    (output_dir / "torch_final_values.txt").write_text(
-    torch_exec.format_final_env())
-
-    print(f"Wrote outputs to: {output_dir}")
-
-

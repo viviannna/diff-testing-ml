@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Dict, List, Optional, Any
 import numpy as np
 import torch
+import tensorflow as tf
 
 from values import Value
 from operations import OperationInstance
@@ -94,6 +95,20 @@ class SequenceExecutor:
             if op_name == "Sum":
                 return f"torch.sum({arg_names[0]})"
 
+        if self.framework == "tf":
+            if op_name == "Add":
+                return f"tf.add({arg_names[0]}, {arg_names[1]})"
+            if op_name == "Subtract":
+                return f"tf.subtract({arg_names[0]}, {arg_names[1]})"
+            if op_name == "MatMul":
+                return f"tf.linalg.matmul({arg_names[0]}, {arg_names[1]})"
+            if op_name == "Transpose":
+                return f"tf.transpose({arg_names[0]}, perm=[1, 0])"
+            if op_name == "Sum":
+                return f"tf.reduce_sum({arg_names[0]})"
+
+        raise NotImplementedError(f"Unsupported framework/op: {self.framework}/{op_name}")
+
         raise NotImplementedError(f"Unsupported framework/op: {self.framework}/{op_name}")
 
     # ---------- Framework env creation ----------
@@ -101,12 +116,22 @@ class SequenceExecutor:
     def _make_env(self) -> Dict[str, Any]:
         if self.framework == "torch":
             return self._make_torch_env()
+        if self.framework == "tf":
+            return self._make_tf_env()
         raise NotImplementedError(f"Unsupported framework: {self.framework}")
+
+        
 
     def _make_torch_env(self) -> Dict[str, torch.Tensor]:
         env: Dict[str, torch.Tensor] = {}
         for name, arr in self.initial_arrays.items():
             env[name] = torch.tensor(arr, dtype=torch.float32)
+        return env
+
+    def _make_tf_env(self) -> Dict[str, tf.Tensor]:
+        env: Dict[str, tf.Tensor] = {}
+        for name, arr in self.initial_arrays.items():
+            env[name] = tf.convert_to_tensor(arr, dtype=tf.float32)
         return env
 
     # ---------- Op dispatch ----------
@@ -117,6 +142,8 @@ class SequenceExecutor:
 
         if self.framework == "torch":
             return self._apply_torch_op(op_name, args)
+        if self.framework == "tf":
+            return self._apply_tf_op(op_name, args)
 
         raise NotImplementedError(f"Unsupported framework: {self.framework}")
 
@@ -135,6 +162,27 @@ class SequenceExecutor:
             return torch.transpose(args[0], 0, 1)
         if op_name == "Sum":
             return torch.sum(args[0])
+
+        raise NotImplementedError(f"Unsupported op: {op_name}")
+
+    def _apply_tf_op(
+        self,
+        op_name: str,
+        args: List[tf.Tensor],
+) -> tf.Tensor:
+        if op_name == "Add":
+            return tf.add(args[0], args[1])
+        if op_name == "Subtract":
+            return tf.subtract(args[0], args[1])
+
+        if op_name == "MatMul":
+            return tf.linalg.matmul(args[0], args[1])
+
+        if op_name == "Transpose":
+            return tf.transpose(args[0], perm=[1, 0])
+
+        if op_name == "Sum":
+            return tf.reduce_sum(args[0])
 
         raise NotImplementedError(f"Unsupported op: {op_name}")
 

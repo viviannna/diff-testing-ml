@@ -1,25 +1,19 @@
 from values import Value
-from operations import Operations, Operation
+from operations import Operations, Operation, OperationInstance
 from dataclasses import dataclass
 from ml_types import Type
 from printer import Printer
+from executor import SequenceExecutor
 import random
+from pathlib import Path
+from datetime import datetime
 
 RANDOM_SEED = 84
 rng = random.Random(RANDOM_SEED)
 
 help = Printer(rng) 
 
-# Example Usage
-# OperationInstance(
-#     operation=Add,
-#     args=[x0, x1]
-# )
 
-@dataclass
-class OperationInstance:
-    operation: Operation
-    args: list[Value]
 
 # Boolean check that the shapes of the arguments are compatible with the operation
 def shapes_work(op: Operation, args: list[Value]) -> bool:
@@ -156,7 +150,7 @@ def apply_operation(op_inst: OperationInstance, temp_index: int) -> Value:
 
 def build_sequence(num_seed_values: int, seq_length: int, rng: random.Random) -> Tuple[List[OperationInstance], List[Value]]:
     """
-    Build a deterministic sequence of seq_len operations.
+    Build a deterministic sequence of seq_len operations. (Symbolic execution sequence)
     - seed_values: initial Values (should include matrices).
     - n: desired number of operations.
     Returns (operations_applied, all_values_after_execution).
@@ -190,10 +184,52 @@ def build_sequence(num_seed_values: int, seq_length: int, rng: random.Random) ->
         next_temp_idx += 1
 
     help.print_generated_seq(ops_applied, values, seed_values)
-    return ops_applied, values
+    return seed_values, ops_applied, values
+
+def make_output_dir() -> Path:
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    output_dir = Path("outputs") / timestamp
+    output_dir.mkdir(parents=True, exist_ok=True)
+    return output_dir
 
 
-# TODO: Init random folder name based off time and just pipe the print statements there
-build_sequence(num_seed_values=3, seq_length=5, rng=rng)
+
+if __name__ == "__main__":
+    output_dir = make_output_dir()
+
+    seed_values, ops_applied, values = build_sequence(
+        num_seed_values=3,
+        seq_length=5,
+        rng=rng,
+    )
+
+    # Write symbolic execution
+    symbolic_text = help.format_generated_seq(ops_applied, values, seed_values)
+    (output_dir / "symbolic_exec.txt").write_text(symbolic_text)
+
+    torch_exec = SequenceExecutor(
+        seed_values=seed_values,
+        ops_applied=ops_applied,
+        framework="torch",
+        rng_seed=84,
+    )
+
+    shared_initial_arrays = torch_exec.get_initial_arrays_copy()
+
+    # TODO: make naming more consistent
+    # Write torch init values
+    (output_dir / "torch_init_values.txt").write_text(
+        torch_exec.format_initial_values()
+    )
+
+    # Write torch verbose execution trace + final result
+    (output_dir / "torch_exec_trace.txt").write_text(
+        torch_exec.format_execution_trace()
+    )
+
+    (output_dir / "torch_final_values.txt").write_text(
+    torch_exec.format_final_env())
+
+    print(f"Wrote outputs to: {output_dir}")
 
 

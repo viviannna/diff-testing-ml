@@ -1,0 +1,244 @@
+from __future__ import annotations
+
+from typing import Dict, List, Optional, Any
+import numpy as np
+import torch
+
+from values import Value
+from operations import OperationInstance
+
+
+class SequenceExecutor:
+    def __init__(
+        self,
+        seed_values: List[Value],
+        ops_applied: List[OperationInstance],
+        framework: str,
+        rng_seed: int = 84,
+        low: float = -2.0,
+        high: float = 2.0,
+        np_dtype: np.dtype = np.float32,
+        initial_arrays: Optional[Dict[str, np.ndarray]] = None,
+    ) -> None:
+        self.seed_values = seed_values
+        self.ops_applied = ops_applied
+        self.framework = framework
+
+        self.rng_seed = rng_seed
+        self.low = low
+        self.high = high
+        self.np_dtype = np_dtype
+        self.rng = np.random.default_rng(rng_seed)
+
+        if initial_arrays is None:
+            self.initial_arrays = self._initialize_seed_arrays()
+        else:
+            self.initial_arrays = self._copy_initial_arrays(initial_arrays)
+
+    # ---------- Initialization ----------
+
+    def _initialize_seed_arrays(self) -> Dict[str, np.ndarray]:
+        initial_arrays: Dict[str, np.ndarray] = {}
+
+        for seed in self.seed_values:
+            if seed.shape is None:
+                raise ValueError(f"Seed value {seed.name} has no shape.")
+            if seed.name in initial_arrays:
+                raise ValueError(f"Duplicate seed name detected: {seed.name}")
+
+            rows, cols = seed.shape
+            arr = self.rng.uniform(
+                low=self.low,
+                high=self.high,
+                size=(rows, cols),
+            ).astype(self.np_dtype)
+
+            initial_arrays[seed.name] = arr
+
+        return initial_arrays
+
+    def _copy_initial_arrays(
+        self,
+        initial_arrays: Dict[str, np.ndarray],
+    ) -> Dict[str, np.ndarray]:
+        copied: Dict[str, np.ndarray] = {}
+        for name, arr in initial_arrays.items():
+            copied[name] = np.array(arr, copy=True)
+        return copied
+
+    def get_initial_arrays_copy(self) -> Dict[str, np.ndarray]:
+        return self._copy_initial_arrays(self.initial_arrays)
+
+    # ---------- Pretty-print helpers ----------
+
+    def _format_symbolic_value(self, v: Value) -> str:
+        if v.shape is None:
+            return f"{v.name}:{v.type.value}"
+        return f"{v.name}:{v.type.value}{v.shape}"
+
+    def _tensor_shape_str(self, tensor: Any) -> str:
+        if hasattr(tensor, "shape"):
+            return str(tuple(tensor.shape))
+        return "scalar"
+
+    def _framework_call_str(self, op_name: str, arg_names: List[str]) -> str:
+        if self.framework == "torch":
+            if op_name == "Add":
+                return f"torch.add({arg_names[0]}, {arg_names[1]})"
+            if op_name == "Subtract":
+                return f"torch.sub({arg_names[0]}, {arg_names[1]})"
+            if op_name == "MatMul":
+                return f"torch.matmul({arg_names[0]}, {arg_names[1]})"
+            if op_name == "Transpose":
+                return f"torch.transpose({arg_names[0]}, 0, 1)"
+            if op_name == "Sum":
+                return f"torch.sum({arg_names[0]})"
+
+        raise NotImplementedError(f"Unsupported framework/op: {self.framework}/{op_name}")
+
+    # ---------- Framework env creation ----------
+
+    def _make_env(self) -> Dict[str, Any]:
+        if self.framework == "torch":
+            return self._make_torch_env()
+        raise NotImplementedError(f"Unsupported framework: {self.framework}")
+
+    def _make_torch_env(self) -> Dict[str, torch.Tensor]:
+        env: Dict[str, torch.Tensor] = {}
+        for name, arr in self.initial_arrays.items():
+            env[name] = torch.tensor(arr, dtype=torch.float32)
+        return env
+
+    # ---------- Op dispatch ----------
+
+    def _apply_op(self, op_inst: OperationInstance, env: Dict[str, Any]) -> Any:
+        op_name = op_inst.operation.name
+        args = [env[arg.name] for arg in op_inst.args]
+
+        if self.framework == "torch":
+            return self._apply_torch_op(op_name, args)
+
+        raise NotImplementedError(f"Unsupported framework: {self.framework}")
+
+    def _apply_torch_op(
+        self,
+        op_name: str,
+        args: List[torch.Tensor],
+    ) -> torch.Tensor:
+        if op_name == "Add":
+            return torch.add(args[0], args[1])
+        if op_name == "Subtract":
+            return torch.sub(args[0], args[1])
+        if op_name == "MatMul":
+            return torch.matmul(args[0], args[1])
+        if op_name == "Transpose":
+            return torch.transpose(args[0], 0, 1)
+        if op_name == "Sum":
+            return torch.sum(args[0])
+
+        raise NotImplementedError(f"Unsupported op: {op_name}")
+
+    # ---------- Execution ----------
+
+    def execute(self, verbose: bool = False) -> Dict[str, Any]:
+        env = self._make_env()
+
+        if verbose:
+            print(f"\nFramework: {self.framework}")
+            print("Beginning symbolic replay...")
+
+        for step_idx, op_inst in enumerate(self.ops_applied):
+            arg_names = [arg.name for arg in op_inst.args]
+            symbolic_args = ", ".join(self._format_symbolic_value(arg) for arg in op_inst.args)
+            temp_name = f"t{step_idx}"
+
+            result = self._apply_op(op_inst, env)
+            env[temp_name] = result
+
+            if verbose:
+                print(f"\nStep {step_idx}")
+                print(f"  Symbolic: {op_inst.operation.name}({symbolic_args}) -> {temp_name}")
+                print(f"  Concrete: {self._framework_call_str(op_inst.operation.name, arg_names)}")
+                print(f"  Result shape: {self._tensor_shape_str(result)}")
+                print(f"  Result value:\n{result}")
+
+        return env
+
+    def execute_final(self, verbose: bool = False) -> Any:
+        if not self.ops_applied:
+            raise ValueError("No operations to execute.")
+
+        env = self.execute(verbose=verbose)
+        final_name = f"t{len(self.ops_applied) - 1}"
+        return env[final_name]
+
+    # ---------- Debug helpers ----------
+
+    def format_initial_values(self) -> str:
+        lines = []
+        lines.append(f"Framework: {self.framework}")
+        lines.append("Initial concrete seed values:")
+        for name, arr in self.initial_arrays.items():
+            lines.append(f"{name}: shape={arr.shape}")
+            lines.append(str(arr))
+            lines.append("")
+        return "\n".join(lines)
+
+    def format_execution_trace(self) -> str:
+        env = self._make_env()
+        lines = []
+
+        lines.append(f"Framework: {self.framework}")
+        lines.append("Beginning symbolic replay...")
+
+        for step_idx, op_inst in enumerate(self.ops_applied):
+            arg_names = [arg.name for arg in op_inst.args]
+            symbolic_args = ", ".join(self._format_symbolic_value(arg) for arg in op_inst.args)
+            temp_name = f"t{step_idx}"
+
+            result = self._apply_op(op_inst, env)
+            env[temp_name] = result
+
+            lines.append("")
+            lines.append(f"Step {step_idx}")
+            lines.append(f"  Symbolic: {op_inst.operation.name}({symbolic_args}) -> {temp_name}")
+            lines.append(f"  Concrete: {self._framework_call_str(op_inst.operation.name, arg_names)}")
+            lines.append(f"  Result shape: {self._tensor_shape_str(result)}")
+            lines.append(f"  Result value:\n{result}")
+
+        final_name = f"t{len(self.ops_applied) - 1}"
+        lines.append("")
+        lines.append(f"Framework: {self.framework}")
+        lines.append("Final result:")
+        lines.append(str(env[final_name]))
+
+        return "\n".join(lines)
+
+    def format_final_env(self) -> str:
+        env = self.execute()
+
+        lines = []
+        lines.append(f"Framework: {self.framework}")
+        lines.append("Final Environment (all values):")
+
+        for name, val in env.items():
+            # shape handling
+            if hasattr(val, "shape"):
+                shape_str = str(tuple(val.shape))
+            else:
+                shape_str = "scalar"
+
+            lines.append(f"{name}: shape={shape_str}")
+            lines.append(str(val))
+            lines.append("")
+
+        return "\n".join(lines)
+
+    def print_initial_arrays(self) -> None:
+        print(self.format_initial_arrays())
+
+    def print_final_result(self) -> None:
+        print(self.format_execution_trace())
+
+    def print_final_env(self):
+        print(self.format_final_env())

@@ -8,6 +8,17 @@ class Operation:
     input_types: list[Type]
     output_type: Type
 
+# Example Usage
+# OperationInstance(
+#     operation=Add,
+#     args=[x0, x1]
+# )
+
+@dataclass
+class OperationInstance:
+    operation: Operation
+    args: list[Value]
+
 Operations = [
     Operation("Add", [Type.Matrix, Type.Matrix], Type.Matrix),
     Operation("Subtract", [Type.Matrix, Type.Matrix], Type.Matrix),

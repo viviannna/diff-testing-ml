@@ -65,14 +65,17 @@ def weighted_choice_values(
 def pair_weight(
     pair: tuple[Value, Value],
     t_bonus: float = 3.0,
+    same_arg_penalty: float = 0.2,
 ) -> float:
     v1, v2 = pair
     num_t = int(value_is_intermediate(v1)) + int(value_is_intermediate(v2))
 
-    # 0 intermediates -> 1
-    # 1 intermediate  -> 1 + t_bonus
-    # 2 intermediates -> 1 + 2 * t_bonus
-    return 1.0 + t_bonus * num_t
+    weight = 1.0 + t_bonus * num_t
+
+    if v1.name == v2.name:
+        weight *= same_arg_penalty
+
+    return weight
 
 def weighted_choice_pairs(
     candidates: list[tuple[Value, Value]],
@@ -190,8 +193,6 @@ def create_compatible_shape_pool(rows, cols, rng, next_seed_id, matrix_type):
 def instantiate_seed_matrices(count: int, rng: random.Random, max_size: int) -> list[Value]:
     seed_matrix_sizes = []
     next_seed_id = 0
-
-
 
     for _ in range(count):
         matrix_type = rng.choice(MatrixTypes)

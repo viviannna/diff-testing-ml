@@ -23,7 +23,7 @@ if __name__ == "__main__":
     NUM_SEED_VARS = 3 
     SEQUENCE_LEN = 10
     MATRIX_MAX_SIZE = 32
-    RANDOM_SEED = 3
+    RANDOM_SEED = 4
 
     RUN_NAME = f"seed_{RANDOM_SEED}_seq_{SEQUENCE_LEN}_max_{MATRIX_MAX_SIZE}"
 

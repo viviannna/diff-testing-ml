@@ -1,0 +1,1 @@
+Small sequences display tolerance issues when using float 32

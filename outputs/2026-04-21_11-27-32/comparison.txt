@@ -1,0 +1,90 @@
+Summary
+  total vars: 150
+  matches: 136
+  mismatches: 14
+
+MISMATCHES:
+t6:
+  shape: (484, 484)
+  max abs diff: 7.62939453125e-05
+  first mismatch index: (np.int64(9), np.int64(46))
+  torch: 0.1138957217335701
+  tf:    0.11390876770019531
+t14:
+  shape: (484, 484)
+  max abs diff: 6.103515625e-05
+  first mismatch index: (np.int64(6), np.int64(232))
+  torch: -0.26206672191619873
+  tf:    -0.26204872131347656
+t25:
+  shape: (215, 215)
+  max abs diff: 0.000213623046875
+  first mismatch index: (np.int64(0), np.int64(73))
+  torch: 1.9504992961883545
+  tf:    1.9504566192626953
+t34:
+  shape: (484, 484)
+  max abs diff: 7.62939453125e-05
+  first mismatch index: (np.int64(9), np.int64(243))
+  torch: 0.5777361989021301
+  tf:    0.577757716178894
+t42:
+  shape: (215, 215)
+  max abs diff: 0.00244140625
+  first mismatch index: (np.int64(0), np.int64(14))
+  torch: 10.189138412475586
+  tf:    10.1878662109375
+t51:
+  shape: (484, 484)
+  max abs diff: 7.62939453125e-05
+  first mismatch index: (np.int64(3), np.int64(49))
+  torch: -0.4210994243621826
+  tf:    -0.4210846424102783
+t62:
+  shape: (484, 484)
+  max abs diff: 0.021484375
+  first mismatch index: (np.int64(0), np.int64(75))
+  torch: 161.69854736328125
+  tf:    161.700927734375
+t63:
+  shape: (215, 215)
+  max abs diff: 0.001953125
+  first mismatch index: (np.int64(0), np.int64(14))
+  torch: 43.3788948059082
+  tf:    43.3779296875
+t66:
+  shape: (484, 484)
+  max abs diff: 0.021484375
+  first mismatch index: (np.int64(0), np.int64(75))
+  torch: 162.2753448486328
+  tf:    162.27772521972656
+t70:
+  shape: (215, 215)
+  max abs diff: 0.5
+  first mismatch index: (np.int64(0), np.int64(65))
+  torch: -2256.409423828125
+  tf:    -2256.2265625
+t82:
+  shape: (215, 215)
+  max abs diff: 0.000244140625
+  first mismatch index: (np.int64(0), np.int64(13))
+  torch: -0.7569407820701599
+  tf:    -0.7569084167480469
+t86:
+  shape: (237, 237)
+  max abs diff: nan
+  first mismatch index: (np.int64(0), np.int64(24))
+  torch: 3.669541835784912
+  tf:    3.66949462890625
+t88:
+  shape: (484, 484)
+  max abs diff: 0.021484375
+  first mismatch index: (np.int64(0), np.int64(75))
+  torch: 163.1641387939453
+  tf:    163.16651916503906
+t98:
+  shape: (215, 215)
+  max abs diff: 0.000213623046875
+  first mismatch index: (np.int64(0), np.int64(141))
+  torch: 0.34572911262512207
+  tf:    0.34571075439453125

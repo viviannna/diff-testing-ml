@@ -1,6 +1,6 @@
 from pathlib import Path
 from datetime import datetime
-from comparator import compare_envs
+from comparator import compare_envs, compare_steps
 from generator import build_sequence
 import random
 from printer import Printer
@@ -87,5 +87,25 @@ if __name__ == "__main__":
     (output_dir / "summary.txt").write_text(summary_report)
 
     print(f"Wrote outputs to: {output_dir}")
+
+
+    comparison_report = compare_steps(
+    ops_applied=ops_applied,
+    torch_exec=torch_exec,
+    tf_exec=tf_exec,
+    torch_env=torch_env,
+    tf_env=tf_env,
+    num_seed_values=NUM_SEED_VARS,
+    seq_length=SEQUENCE_LEN,
+    seed=RANDOM_SEED,
+    max_size=MATRIX_MAX_SIZE,
+    atol=1e-5,
+    rtol=1e-5,
+    use_color=True,
+    )
+    (output_dir / "comparison.txt").write_text(comparison_report)
+
+    print("Done")
+
 
 

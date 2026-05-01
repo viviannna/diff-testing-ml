@@ -154,9 +154,6 @@ class SequenceExecutor:
 
             raise NotImplementedError(f"Unsupported op: {op_name}")
            
-
-        raise NotImplementedError(f"Unsupported framework/op: {self.framework}/{op_name}")
-
         raise NotImplementedError(f"Unsupported framework/op: {self.framework}/{op_name}")
 
     # ---------- Framework env creation ----------

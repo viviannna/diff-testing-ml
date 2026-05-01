@@ -48,51 +48,99 @@ def infer_output_shape(op: Operation, args: list[Value]) -> tuple[int, int] | No
 
     return None
 
-def get_legal_operations(available_values: list[Value], current_len: int, n: int) -> list[OperationInstance]:
-    """
-    Return a list of operation instances that can be applied to available_values.
-    - current_len: number of operations already in the sequence.
-    - n: desired total sequence length (number of operations).
-    Sum (scalar-producing) ops are only allowed when current_len == n-1 (the final step).
-    """
-    legal_ops: list[OperationInstance] = []
-    # force_scalar = (current_len == n - 1)
+def value_is_intermediate(v: Value) -> bool:
+    return v.name.startswith("t")
 
-    # # for final iteration, forcing to return scalar values for easy comparison
-    # # TODO: Get rid of this eventually. Want to transition to comparing intermediary states at this point 
-    # if force_scalar:
-    #     candidate_ops = [op for op in Operations if op.output_type == Type.Scalar]
-    # else:
-    #     candidate_ops = [op for op in Operations if op.output_type != Type.Scalar]
+def weighted_choice_values(
+    candidates: list[Value],
+    rng: random.Random,
+    t_bonus: float = 3.0,
+) -> Value:
+    weights = [
+        1.0 + t_bonus if value_is_intermediate(v) else 1.0
+        for v in candidates
+    ]
+    return rng.choices(candidates, weights=weights, k=1)[0]
 
+def pair_weight(
+    pair: tuple[Value, Value],
+    t_bonus: float = 3.0,
+) -> float:
+    v1, v2 = pair
+    num_t = int(value_is_intermediate(v1)) + int(value_is_intermediate(v2))
+
+    # 0 intermediates -> 1
+    # 1 intermediate  -> 1 + t_bonus
+    # 2 intermediates -> 1 + 2 * t_bonus
+    return 1.0 + t_bonus * num_t
+
+def weighted_choice_pairs(
+    candidates: list[tuple[Value, Value]],
+    rng: random.Random,
+    t_bonus: float = 3.0,
+) -> tuple[Value, Value]:
+    weights = [pair_weight(pair, t_bonus) for pair in candidates]
+    return rng.choices(candidates, weights=weights, k=1)[0]
+
+
+def sample_operation_instance(
+    available_values: list[Value],
+    current_len: int,
+    n: int,
+    rng: random.Random,
+    t_bonus: float = 3.0,
+) -> OperationInstance | None:
+    """
+    Randomly select an operation first, then select valid arguments.
+    Inputs are biased toward intermediate t-values.
+    """
 
     candidate_ops = [op for op in Operations]
 
-    for op in candidate_ops:
-        # Prevent producing a scalar before the final step
-        # TODO: Revisit. It might be fine to create scalars
-        # if op.output_type == Type.Scalar and not force_scalar:
-        #     continue
+    while candidate_ops:
+        op = rng.choice(candidate_ops)
+        candidate_ops.remove(op)
 
-        # unary operations: only needs one input
+        # Unary operation
         if len(op.input_types) == 1:
             needed_type = op.input_types[0]
-            for v in available_values:
-                # TODO: Only works if matches needed type AND size
-                if v.type == needed_type and shapes_work(op, [v]):
-                    legal_ops.append(OperationInstance(op, [v]))
 
-        # binary operations: needs two inputs, creates all pairs 
+            candidates = [
+                v for v in available_values
+                if v.type == needed_type and shapes_work(op, [v])
+            ]
+
+            if not candidates:
+                continue
+
+            arg = weighted_choice_values(candidates, rng, t_bonus)
+            return OperationInstance(op, [arg])
+
+        # Binary operation
         elif len(op.input_types) == 2:
             needed_type_1 = op.input_types[0]
             needed_type_2 = op.input_types[1]
-            for v1 in available_values:
-                for v2 in available_values:
-                    if v1.type == needed_type_1 and v2.type == needed_type_2 and shapes_work(op, [v1, v2]):
-                        legal_ops.append(OperationInstance(op, [v1, v2]))
-    
-    return legal_ops
 
+            valid_pairs: list[tuple[Value, Value]] = []
+
+            for v1 in available_values:
+                if v1.type != needed_type_1:
+                    continue
+
+                for v2 in available_values:
+                    if v2.type != needed_type_2:
+                        continue
+
+                    if shapes_work(op, [v1, v2]):
+                        valid_pairs.append((v1, v2))
+
+            if not valid_pairs:
+                continue
+
+            v1, v2 = weighted_choice_pairs(valid_pairs, rng, t_bonus)
+            return OperationInstance(op, [v1, v2])
+
+    return None
 
 def create_compatible_shape_pool(rows, cols, rng, next_seed_id, matrix_type):
     """
@@ -212,7 +260,6 @@ def build_sequence(num_seed_values: int, seq_length: int, rng: random.Random, ma
     - rng: random number generator
     - max_size: maximum size of the matrices
     Returns (operations_applied, all_values_after_execution).
-    Note: chooses first legal op each step; replace selection logic as needed.
     """
 
     seed_values = instantiate_seed_matrices(num_seed_values, rng, max_size)
@@ -224,12 +271,17 @@ def build_sequence(num_seed_values: int, seq_length: int, rng: random.Random, ma
 
     while current_len < seq_length:
 
-        # choose from legal_ops and apply to create a new value
-        legal_ops = get_legal_operations(values, current_len, seq_length)
-        if not legal_ops:
+        op_inst = sample_operation_instance(
+            available_values=values,
+            current_len=current_len,
+            n=seq_length,
+            rng=rng,
+            t_bonus=3.0,
+        )
+
+        if not op_inst:
             print(f"No legal operations available at step {current_len}. Stopping early.")
             break  # stuck; no legal op available
-        op_inst = rng.choice(legal_ops)  
         new_val = apply_operation(op_inst, next_temp_idx)
 
         # update historic trackers

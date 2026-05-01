@@ -69,6 +69,8 @@ def compare_envs(torch_env, tf_env, num_seed_values, seq_length, seed, max_size,
     lines.append(f"  num seed values: {num_seed_values}")
     lines.append(f"  seq length: {seq_length}")
     lines.append(f"  max size: {max_size}")
+    lines.append(f"  atol: {atol}")
+    lines.append(f"  rtol: {rtol}")
     lines.append("")
 
     lines.append(f"  total vars: {total}")

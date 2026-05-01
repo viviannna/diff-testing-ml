@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Dict, List, Optional, Any
+from dataclasses import dataclass
 import numpy as np
 import torch
 import tensorflow as tf
@@ -8,6 +9,32 @@ from values import Value
 from operations import OperationInstance
 from ml_types import MatrixInstance
 
+
+
+@dataclass
+class ExecutionCrash:
+    framework: str
+    step_idx: int
+    op_name: str
+    arg_names: list[str]
+    error_type: str
+    error_message: str
+    upstream: bool = False
+
+    def short(self) -> str:
+        args = ", ".join(self.arg_names)
+        return (
+            f"CRASH[{self.framework}] step={self.step_idx} "
+            f"op={self.op_name}({args}) "
+            f"{self.error_type}: {self.error_message}"
+        )
+
+    def __str__(self) -> str:
+        return self.short()
+
+
+def is_execution_crash(val: Any) -> bool:
+    return isinstance(val, ExecutionCrash)
 
 def initialize_seed_arrays(
     seed_values: list[Value],
@@ -104,6 +131,8 @@ class SequenceExecutor:
         return f"{v.name}:{v.type.value}{v.shape}"
 
     def _tensor_shape_str(self, tensor: Any) -> str:
+        if is_execution_crash(tensor):
+            return "CRASH"
         if hasattr(tensor, "shape"):
             return str(tuple(tensor.shape))
         return "scalar"
@@ -181,16 +210,52 @@ class SequenceExecutor:
 
     # ---------- Op dispatch ----------
 
-    def _apply_op(self, op_inst: OperationInstance, env: Dict[str, Any]) -> Any:
+    def _apply_op(
+        self,
+        op_inst: OperationInstance,
+        env: Dict[str, Any],
+        step_idx: int | None = None,
+    ) -> Any:
         op_name = op_inst.operation.name
-        args = [env[arg.name] for arg in op_inst.args]
+        arg_names = [arg.name for arg in op_inst.args]
+        args = [env[name] for name in arg_names]
+        crash_step = -1 if step_idx is None else step_idx
 
-        if self.framework == "torch":
-            return self._apply_torch_op(op_name, args)
-        if self.framework == "tf":
-            return self._apply_tf_op(op_name, args)
+        crashed_inputs = [
+            name for name, value in zip(arg_names, args)
+            if is_execution_crash(value)
+        ]
+        if crashed_inputs:
+            return ExecutionCrash(
+                framework=self.framework,
+                step_idx=crash_step,
+                op_name=op_name,
+                arg_names=arg_names,
+                error_type="UpstreamCrash",
+                error_message=(
+                    "operation skipped because input(s) already crashed: "
+                    + ", ".join(crashed_inputs)
+                ),
+                upstream=True,
+            )
 
-        raise NotImplementedError(f"Unsupported framework: {self.framework}")
+        try:
+            if self.framework == "torch":
+                return self._apply_torch_op(op_name, args)
+            if self.framework == "tf":
+                return self._apply_tf_op(op_name, args)
+
+            raise NotImplementedError(f"Unsupported framework: {self.framework}")
+
+        except Exception as e:
+            return ExecutionCrash(
+                framework=self.framework,
+                step_idx=crash_step,
+                op_name=op_name,
+                arg_names=arg_names,
+                error_type=type(e).__name__,
+                error_message=str(e),
+            )
 
     def _apply_torch_op(
         self,
@@ -269,7 +334,7 @@ class SequenceExecutor:
             symbolic_args = ", ".join(self._format_symbolic_value(arg) for arg in op_inst.args)
             temp_name = f"t{step_idx}"
 
-            result = self._apply_op(op_inst, env)
+            result = self._apply_op(op_inst, env, step_idx=step_idx)
             env[temp_name] = result
 
             if verbose:
@@ -313,7 +378,7 @@ class SequenceExecutor:
             symbolic_args = ", ".join(self._format_symbolic_value(arg) for arg in op_inst.args)
             temp_name = f"t{step_idx}"
 
-            result = self._apply_op(op_inst, env)
+            result = self._apply_op(op_inst, env, step_idx=step_idx)
             env[temp_name] = result
 
             lines.append("")

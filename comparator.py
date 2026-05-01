@@ -1,8 +1,11 @@
 import numpy as np
 from assumptions import assumption_checks
+from executor import ExecutionCrash, is_execution_crash
 
 
 def tensor_to_numpy(val):
+    if is_execution_crash(val):
+        raise TypeError("ExecutionCrash does not have a tensor value.")
     if hasattr(val, "detach"):  # torch
         return val.detach().cpu().numpy()
     if hasattr(val, "numpy"):   # tf
@@ -38,8 +41,27 @@ def compare_envs(
     match_count = 0
 
     for name in shared_keys:
-        a = np.array(tensor_to_numpy(torch_env[name]))
-        b = np.array(tensor_to_numpy(tf_env[name]))
+        torch_val_raw = torch_env[name]
+        tf_val_raw = tf_env[name]
+
+        torch_crashed = is_execution_crash(torch_val_raw)
+        tf_crashed = is_execution_crash(tf_val_raw)
+
+        if torch_crashed or tf_crashed:
+            if torch_crashed and tf_crashed:
+                match_count += 1
+                continue
+
+            mismatches.append(
+                f"{name}:\n"
+                f"  CRASH MISMATCH\n"
+                f"  torch: {format_value_for_diff(torch_val_raw)}\n"
+                f"  tf:    {format_value_for_diff(tf_val_raw)}"
+            )
+            continue
+
+        a = np.array(tensor_to_numpy(torch_val_raw))
+        b = np.array(tensor_to_numpy(tf_val_raw))
 
         if a.shape != b.shape:
             mismatches.append(
@@ -143,6 +165,9 @@ def format_symbolic_op(op_inst, temp_name: str) -> str:
 
 
 def format_value_for_diff(val, max_chars: int = 800) -> str:
+    if is_execution_crash(val):
+        return val.short()
+
     arr = np.array(tensor_to_numpy(val))
 
     if arr.shape == ():
@@ -163,6 +188,20 @@ def format_value_for_diff(val, max_chars: int = 800) -> str:
 
 
 def values_equal(a, b, atol: float, rtol: float) -> tuple[bool, str]:
+    a_crashed = is_execution_crash(a)
+    b_crashed = is_execution_crash(b)
+
+    if a_crashed or b_crashed:
+        if a_crashed and b_crashed:
+            return True, "both frameworks crashed"
+
+        return (
+            False,
+            "only one framework crashed\n"
+            f"torch: {format_value_for_diff(a)}\n"
+            f"tf:    {format_value_for_diff(b)}"
+        )
+
     a_np = np.array(tensor_to_numpy(a))
     b_np = np.array(tensor_to_numpy(b))
 
@@ -238,7 +277,8 @@ def compare_steps(
 
         is_equal, reason = values_equal(torch_val, tf_val, atol, rtol)
 
-        status = "MATCH" if is_equal else "MISMATCH"
+        both_crashed = is_execution_crash(torch_val) and is_execution_crash(tf_val)
+        status = "BOTH CRASHED" if both_crashed else "MATCH" if is_equal else "MISMATCH"
         if use_color:
             status_text = green(status) if is_equal else red(status)
         else:
@@ -267,14 +307,16 @@ def compare_steps(
             lines.append(red("Difference:") if use_color else "Difference:")
             lines.append(indent_text(reason, prefix="  "))
 
-            api_checks_by_framework, implied_checks = assumption_checks(
-                op_name=op_name,
-                op_inst=op_inst,
-                env=torch_env,
-                tensor_to_numpy_fn=tensor_to_numpy,
-                use_color=use_color,
-            )
-
+            if any(is_execution_crash(torch_env[arg.name]) for arg in op_inst.args):
+                api_checks_by_framework, implied_checks = {}, []
+            else:
+                api_checks_by_framework, implied_checks = assumption_checks(
+                    op_name=op_name,
+                    op_inst=op_inst,
+                    env=torch_env,
+                    tensor_to_numpy_fn=tensor_to_numpy,
+                    use_color=use_color,
+                )
 
             if api_checks_by_framework or implied_checks:
                 lines.append("")

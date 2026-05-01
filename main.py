@@ -20,7 +20,7 @@ def make_output_dir() -> Path:
 if __name__ == "__main__":
 
 
-    RANDOM_SEED = 84
+    RANDOM_SEED = 1
     rng = random.Random(RANDOM_SEED)
 
     help = Printer(rng, RANDOM_SEED) 
@@ -29,11 +29,12 @@ if __name__ == "__main__":
     # 1. SYMBOLIC EXECUTION 
 
     seed_values, ops_applied, values = build_sequence(
-        num_seed_values=3,
-        seq_length=5,
+        num_seed_values=10,
+        seq_length=50,
         rng=rng,
+        max_size=512
     )
-    # help.print_generated_seq(ops_applied, values, seed_values)
+    help.print_generated_seq(ops_applied, values, seed_values)
     symbolic_text = help.format_generated_seq(ops_applied, values, seed_values)
     (output_dir / "symbolic_exec.txt").write_text(symbolic_text)
 
@@ -45,7 +46,9 @@ if __name__ == "__main__":
 
 
     torch_exec = SequenceExecutor(seed_values, ops_applied, "torch", initial_arrays)
+    print("Done with torch")
     tf_exec    = SequenceExecutor(seed_values, ops_applied, "tf", initial_arrays)
+    print("Done with TensorFlow")
 
     # PyTorch
 

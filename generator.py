@@ -139,19 +139,21 @@ def create_compatible_shape_pool(rows, cols, rng, next_seed_id, matrix_type):
     return new_values, next_seed_id
 
 
-def instantiate_seed_matrices(count: int, rng: random.Random) -> list[Value]:
+def instantiate_seed_matrices(count: int, rng: random.Random, max_size: int) -> list[Value]:
     seed_matrix_sizes = []
     next_seed_id = 0
+
+
 
     for _ in range(count):
         matrix_type = rng.choice(MatrixTypes)
 
         if matrix_type == MatrixInstance.Random:
-            rows = rng.randint(1, 5)
-            cols = rng.randint(1, 5)
+            rows = rng.randint(1, max_size)
+            cols = rng.randint(1, max_size)
 
         elif matrix_type == MatrixInstance.Symmetric:
-            n = rng.randint(1, 5)
+            n = rng.randint(1, max_size)
             rows, cols = n, n
 
         else:
@@ -202,7 +204,7 @@ def apply_operation(op_inst: OperationInstance, temp_index: int) -> Value:
         matrix_type=matrix_type,
     )
 
-def build_sequence(num_seed_values: int, seq_length: int, rng: random.Random) -> tuple[list[OperationInstance], list[Value]]:
+def build_sequence(num_seed_values: int, seq_length: int, rng: random.Random, max_size: int) -> tuple[list[OperationInstance], list[Value]]:
     """
     Build a deterministic sequence of seq_len operations. (Symbolic execution sequence)
     - seed_values: initial Values (should include matrices).
@@ -211,7 +213,7 @@ def build_sequence(num_seed_values: int, seq_length: int, rng: random.Random) ->
     Note: chooses first legal op each step; replace selection logic as needed.
     """
 
-    seed_values = instantiate_seed_matrices(num_seed_values, rng)
+    seed_values = instantiate_seed_matrices(num_seed_values, rng, max_size)
     values = list(seed_values) # values that are currently usable
 
     ops_applied: list[OperationInstance] = [] # history of all operations applied 

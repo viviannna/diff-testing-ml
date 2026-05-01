@@ -14,10 +14,12 @@ def initialize_seed_arrays(
     rng_seed: int = 84,
     low: float = -2.0,
     high: float = 2.0,
-    np_dtype: np.dtype = np.float32,
+    np_dtype: np.dtype = np.float64,
     p_nan: float = 0.05,   # probability of injecting a NaN
     p_inf: float = 0.02,   # probability of injecting an Inf
 ) -> dict[str, np.ndarray]:
+
+
 
     rng = np.random.default_rng(rng_seed)
     initial_arrays: dict[str, np.ndarray] = {}
@@ -149,13 +151,13 @@ class SequenceExecutor:
     def _make_torch_env(self) -> Dict[str, torch.Tensor]:
         env: Dict[str, torch.Tensor] = {}
         for name, arr in self.initial_arrays.items():
-            env[name] = torch.tensor(arr, dtype=torch.float32)
+            env[name] = torch.tensor(arr, dtype=torch.float64)
         return env
 
     def _make_tf_env(self) -> Dict[str, tf.Tensor]:
         env: Dict[str, tf.Tensor] = {}
         for name, arr in self.initial_arrays.items():
-            env[name] = tf.convert_to_tensor(arr, dtype=tf.float32)
+            env[name] = tf.convert_to_tensor(arr, dtype=tf.float64)
         return env
 
     # ---------- Op dispatch ----------

@@ -8,7 +8,7 @@ def tensor_to_numpy(val):
     return np.array(val)
 
 
-def compare_envs(torch_env, tf_env, atol=1e-5, rtol=1e-5) -> str:
+def compare_envs(torch_env, tf_env, num_seed_values, seq_length, seed, max_size, atol=1e-5, rtol=1e-5) -> str:
     torch_keys = set(torch_env.keys())
     tf_keys = set(tf_env.keys())
 
@@ -63,6 +63,14 @@ def compare_envs(torch_env, tf_env, atol=1e-5, rtol=1e-5) -> str:
 
     # Summary
     lines.append("Summary")
+
+    # want to add the seed, the number of seed values, seq_length, rng, max_size
+    lines.append(f"  seed: {seed}")
+    lines.append(f"  num seed values: {num_seed_values}")
+    lines.append(f"  seq length: {seq_length}")
+    lines.append(f"  max size: {max_size}")
+    lines.append("")
+
     lines.append(f"  total vars: {total}")
     lines.append(f"  matches: {match_count}")
     lines.append(f"  mismatches: {len(mismatches)}")
@@ -71,6 +79,6 @@ def compare_envs(torch_env, tf_env, atol=1e-5, rtol=1e-5) -> str:
         lines.append("\nMISMATCHES:")
         lines.extend(mismatches)
     else:
-        lines.append("\nAll values match within tolerance.")
+        lines.append(f"\nAll values match within tolerance atol: {atol} and rtol: {rtol}")
 
     return "\n".join(lines)

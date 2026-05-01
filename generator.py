@@ -209,6 +209,8 @@ def build_sequence(num_seed_values: int, seq_length: int, rng: random.Random, ma
     Build a deterministic sequence of seq_len operations. (Symbolic execution sequence)
     - seed_values: initial Values (should include matrices).
     - n: desired number of operations.
+    - rng: random number generator
+    - max_size: maximum size of the matrices
     Returns (operations_applied, all_values_after_execution).
     Note: chooses first legal op each step; replace selection logic as needed.
     """
@@ -229,8 +231,6 @@ def build_sequence(num_seed_values: int, seq_length: int, rng: random.Random, ma
             break  # stuck; no legal op available
         op_inst = rng.choice(legal_ops)  
         new_val = apply_operation(op_inst, next_temp_idx)
-
-        # print_step_decisions(current_len, values, legal_ops, op_inst)
 
         # update historic trackers
         values.append(new_val) # output is a new value type

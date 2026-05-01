@@ -120,6 +120,17 @@ class SequenceExecutor:
                 return f"torch.transpose({arg_names[0]}, 0, 1)"
             if op_name == "Sum":
                 return f"torch.sum({arg_names[0]})"
+            if op_name == "LogDet":
+                return f"torch.linalg.logdet({arg_names[0]})"
+            if op_name == "Cholesky":
+                return f"torch.linalg.cholesky({arg_names[0]})"
+            if op_name == "Solve":
+                return f"torch.linalg.solve({arg_names[0]}, {arg_names[1]})"
+            if op_name == "Softmax":
+                return f"torch.nn.functional.softmax({arg_names[0]}, dim=-1)"
+
+            raise NotImplementedError(f"Unsupported op: {op_name}")
+
 
         if self.framework == "tf":
             if op_name == "Add":
@@ -132,6 +143,17 @@ class SequenceExecutor:
                 return f"tf.transpose({arg_names[0]}, perm=[1, 0])"
             if op_name == "Sum":
                 return f"tf.reduce_sum({arg_names[0]})"
+            if op_name == "LogDet":
+                return f"tf.linalg.logdet({arg_names[0]})"
+            if op_name == "Cholesky":
+                return f"tf.linalg.cholesky({arg_names[0]})"
+            if op_name == "Solve":
+                return f"tf.linalg.solve({arg_names[0]}, {arg_names[1]})"
+            if op_name == "Softmax":
+                return f"tf.nn.softmax({arg_names[0]}, axis=-1)"
+
+            raise NotImplementedError(f"Unsupported op: {op_name}")
+           
 
         raise NotImplementedError(f"Unsupported framework/op: {self.framework}/{op_name}")
 
@@ -188,7 +210,17 @@ class SequenceExecutor:
             return torch.transpose(args[0], 0, 1)
         if op_name == "Sum":
             return torch.sum(args[0])
+        if op_name == "LogDet":
+                return torch.logdet(args[0])
+        if op_name == "Cholesky":
+            return torch.linalg.cholesky(args[0])
 
+        if op_name == "Solve":
+            return torch.linalg.solve(args[0], args[1])
+
+        if op_name == "Softmax":
+            return torch.nn.functional.softmax(args[0], dim=-1)
+        
         raise NotImplementedError(f"Unsupported op: {op_name}")
 
     def _apply_tf_op(
@@ -210,7 +242,21 @@ class SequenceExecutor:
         if op_name == "Sum":
             return tf.reduce_sum(args[0])
 
+        if op_name == "LogDet":
+            return tf.linalg.logdet(args[0])
+
+        if op_name == "Cholesky":
+            return tf.linalg.cholesky(args[0])
+
+        if op_name == "Solve":
+            return tf.linalg.solve(args[0], args[1])
+
+        if op_name == "Softmax":
+            return tf.nn.softmax(args[0], axis=-1)
+        
         raise NotImplementedError(f"Unsupported op: {op_name}")
+
+        
 
     # ---------- Execution ----------
 

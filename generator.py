@@ -31,6 +31,21 @@ def shapes_work(op: Operation, args: list[Value]) -> bool:
     if op.name == "Sum":
         return args[0].shape is not None
 
+    if op.name in {"LogDet", "Cholesky"}:
+        return args[0].shape is not None and args[0].shape[0] == args[0].shape[1]
+
+    if op.name == "Solve":
+        A, b = args
+        return (
+            A.shape is not None
+            and b.shape is not None
+            and A.shape[0] == A.shape[1]
+            and A.shape[0] == b.shape[0]
+        )
+
+    if op.name == "Softmax":
+        return args[0].shape is not None
+
     return False
 
 def infer_output_shape(op: Operation, args: list[Value]) -> tuple[int, int] | None:
@@ -45,6 +60,18 @@ def infer_output_shape(op: Operation, args: list[Value]) -> tuple[int, int] | No
 
     if op.name == "Sum":
         return None
+
+    if op.name == "LogDet":
+        return None
+
+    if op.name == "Cholesky":
+        return args[0].shape
+
+    if op.name == "Solve":
+        return args[1].shape
+
+    if op.name == "Softmax":
+        return args[0].shape
 
     return None
 

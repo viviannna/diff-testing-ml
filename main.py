@@ -81,10 +81,10 @@ if __name__ == "__main__":
     tf_env = tf_exec.execute()
     print("Done generating the TensorFlow steps")
 
-    print("Run comparison report")
-    comparison_report = compare_envs(torch_env, tf_env, NUM_SEED_VARS, SEQUENCE_LEN, RANDOM_SEED, MATRIX_MAX_SIZE, atol=1e-5, rtol=1e-5)
-    print(comparison_report)
-    (output_dir / "comparison.txt").write_text(comparison_report)
+    print("Running summary report")
+    summary_report = compare_envs(torch_env, tf_env, NUM_SEED_VARS, SEQUENCE_LEN, RANDOM_SEED, MATRIX_MAX_SIZE, atol=1e-5, rtol=1e-5)
+    print(summary_report)
+    (output_dir / "summary.txt").write_text(summary_report)
 
     print(f"Wrote outputs to: {output_dir}")
 

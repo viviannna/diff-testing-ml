@@ -1,0 +1,43 @@
+Summary
+  seed: 0
+  num seed values: 3
+  seq length: 10
+  max size: 32
+  atol: 1e-05
+  rtol: 1e-05
+
+  total vars: 25
+  matches: 22
+  mismatches: 3
+
+MISMATCHES:
+t5:
+  CRASH MISMATCH
+  torch: CRASH[torch] step=5 op=Cholesky(t0) _LinAlgError: linalg.cholesky: The factorization could not be completed because the input is not positive-definite (the leading minor of order 2 is not positive-definite).
+  tf:    [[     nan 0.       0.       ... 0.118329 0.118329 0.118329]
+ [     nan      nan 0.118329 ... 0.104081 0.104081 0.104081]
+ [     nan      nan      nan ... 0.11478  0.11478  0.11478 ]
+ ...
+ [     nan      nan      nan ...      nan 0.105693 0.105693]
+ [     nan      nan      nan ...      nan      nan 0.134782]
+ [     nan      nan      nan ...      nan      nan      nan]]
+t7:
+  CRASH MISMATCH
+  torch: [[nan nan nan ... nan nan nan]
+ [nan nan nan ... nan nan nan]
+ [nan nan nan ... nan nan nan]
+ ...
+ [nan nan nan ... nan nan nan]
+ [nan nan nan ... nan nan nan]
+ [nan nan nan ... nan nan nan]]
+  tf:    CRASH[tf] step=7 op=Solve(t6, x7) InvalidArgumentError: {{function_node __wrapped__MatrixSolve_device_/job:localhost/replica:0/task:0/device:CPU:0}} Input matrix is not invertible. [Op:MatrixSolve] name: 
+t8:
+  CRASH MISMATCH
+  torch: CRASH[torch] step=8 op=Subtract(t5, x7) UpstreamCrash: operation skipped because input(s) already crashed: t5
+  tf:    [[      nan -0.093749 -0.175372 ... -0.016694  0.113076 -0.289033]
+ [      nan       nan -0.046503 ...  0.409879  0.033241  0.253616]
+ [      nan       nan       nan ...  0.320372 -0.174222 -0.170547]
+ ...
+ [      nan       nan       nan ...       nan  0.219799  0.178453]
+ [      nan       nan       nan ...       nan       nan  0.062867]
+ [      nan       nan       nan ...       nan       nan       nan]]

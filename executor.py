@@ -60,15 +60,63 @@ def initialize_seed_arrays(
         rows, cols = seed.shape
 
         # --- base generation ---
-        if seed.matrix_type == MatrixInstance.Symmetric:
-            if rows != cols:
-                raise ValueError(
-                    f"Symmetric matrix must be square: {seed.name} has shape {seed.shape}"
-                )
-            base = rng.uniform(low=low, high=high, size=(rows, cols)).astype(np_dtype)
-            arr = (base + base.T) / 2
-        else:
+        if seed.matrix_type == MatrixInstance.Random:
             arr = rng.uniform(low=low, high=high, size=(rows, cols)).astype(np_dtype)
+
+        elif seed.matrix_type == MatrixInstance.Symmetric:
+            if rows != cols:
+                raise ValueError(f"Symmetric matrix must be square: {seed.name} has shape {seed.shape}")
+            base = rng.uniform(low=low, high=high, size=(rows, cols)).astype(np_dtype)
+            arr = ((base + base.T) / 2).astype(np_dtype)
+
+        elif seed.matrix_type == MatrixInstance.SPD:
+            if rows != cols:
+                raise ValueError(f"SPD matrix must be square: {seed.name} has shape {seed.shape}")
+            base = rng.uniform(low=low, high=high, size=(rows, cols)).astype(np_dtype)
+            arr = (base.T @ base).astype(np_dtype)
+
+            # Add diagonal shift so it is reliably positive definite.
+            arr += (rows * 1e-3 + 1e-6) * np.eye(rows, dtype=np_dtype)
+
+        elif seed.matrix_type == MatrixInstance.Singular:
+            if rows != cols:
+                raise ValueError(f"Singular matrix must be square: {seed.name} has shape {seed.shape}")
+            arr = rng.uniform(low=low, high=high, size=(rows, cols)).astype(np_dtype)
+
+            if rows > 1:
+                # Force rank deficiency by making the last row equal to the first row.
+                arr[-1, :] = arr[0, :]
+            else:
+                arr[0, 0] = 0.0
+
+        elif seed.matrix_type == MatrixInstance.Diagonal:
+            if rows != cols:
+                raise ValueError(f"Diagonal matrix must be square: {seed.name} has shape {seed.shape}")
+
+            diag = rng.uniform(low=0.5, high=2.0, size=rows).astype(np_dtype)
+            arr = np.diag(diag).astype(np_dtype)
+
+        elif seed.matrix_type == MatrixInstance.Orthogonal:
+            if rows != cols:
+                raise ValueError(f"Orthogonal matrix must be square: {seed.name} has shape {seed.shape}")
+
+            base = rng.normal(size=(rows, cols)).astype(np_dtype)
+            q, _ = np.linalg.qr(base)
+            arr = q.astype(np_dtype)
+
+        elif seed.matrix_type == MatrixInstance.IllConditioned:
+            if rows != cols:
+                raise ValueError(f"IllConditioned matrix must be square: {seed.name} has shape {seed.shape}")
+
+            # Create Q D Q^T with a large spread in eigenvalues.
+            base = rng.normal(size=(rows, cols)).astype(np_dtype)
+            q, _ = np.linalg.qr(base)
+
+            eigs = np.geomspace(1.0, 1e-10, rows).astype(np_dtype)
+            arr = (q @ np.diag(eigs) @ q.T).astype(np_dtype)
+
+        else:
+            raise ValueError(f"Unknown matrix type: {seed.matrix_type}")
 
         # --- inject NaN / Inf (controlled) ---
         if rng.random() < p_nan:

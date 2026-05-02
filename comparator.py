@@ -150,12 +150,14 @@ def indent_text(text: str, prefix: str = "  ") -> str:
 def format_symbolic_value(v) -> str:
     """
     Example:
-      x7:Matrix(6, 5)
+      x7:Matrix[SPD](6, 5)
       t1:Scalar
     """
+    matrix_type = getattr(v, "matrix_type", None)
+    matrix_type_str = f"[{matrix_type.value}]" if matrix_type is not None else ""
     if v.shape is None:
-        return f"{v.name}:{v.type.value}"
-    return f"{v.name}:{v.type.value}{v.shape}"
+        return f"{v.name}:{v.type.value}{matrix_type_str}"
+    return f"{v.name}:{v.type.value}{matrix_type_str}{v.shape}"
 
 
 def format_symbolic_op(op_inst, temp_name: str) -> str:
@@ -185,6 +187,103 @@ def format_value_for_diff(val, max_chars: int = 800) -> str:
         text = text[:max_chars] + "\n... [truncated]"
 
     return text
+
+
+def matrix_property_checks(val, cond_threshold: float = 1e8) -> list[str]:
+    """
+    Return concrete matrix properties for a runtime value.
+    This is intentionally independent from the symbolic MatrixInstance annotation.
+    """
+    if is_execution_crash(val):
+        return ["crashed: YES"]
+
+    try:
+        arr = np.array(tensor_to_numpy(val))
+    except Exception as e:
+        return [f"property check unavailable: {type(e).__name__}: {e}"]
+
+    props: list[str] = []
+
+    if arr.ndim < 2:
+        return [f"not a matrix value (ndim={arr.ndim})"]
+
+    rows, cols = arr.shape[-2], arr.shape[-1]
+    is_square = rows == cols
+
+    props.append(f"shape: {arr.shape}")
+    props.append(f"square: {'YES' if is_square else 'NO'}")
+    props.append(f"finite: {'YES' if np.isfinite(arr).all() else 'NO'}")
+    props.append(f"contains NaN: {'YES' if np.isnan(arr).any() else 'NO'}")
+    props.append(f"contains Inf: {'YES' if np.isinf(arr).any() else 'NO'}")
+
+    if not is_square:
+        return props
+
+    try:
+        symmetric = np.allclose(arr, np.swapaxes(arr, -1, -2), atol=1e-8, rtol=1e-8, equal_nan=True)
+    except Exception:
+        symmetric = False
+
+    try:
+        diagonal = np.allclose(arr, np.diag(np.diagonal(arr)), atol=1e-8, rtol=1e-8, equal_nan=True)
+    except Exception:
+        diagonal = False
+
+    try:
+        rank = np.linalg.matrix_rank(arr)
+        singular = rank < rows
+    except Exception:
+        rank = None
+        singular = None
+
+    try:
+        cond = float(np.linalg.cond(arr))
+    except Exception:
+        cond = None
+
+    try:
+        np.linalg.cholesky(arr)
+        positive_definite = True
+    except Exception:
+        positive_definite = False
+
+    try:
+        eye = np.eye(rows, dtype=arr.dtype if np.issubdtype(arr.dtype, np.number) else float)
+        orthogonal = np.allclose(arr.T @ arr, eye, atol=1e-8, rtol=1e-8, equal_nan=True)
+    except Exception:
+        orthogonal = False
+
+    props.append(f"symmetric: {'YES' if symmetric else 'NO'}")
+    props.append(f"diagonal: {'YES' if diagonal else 'NO'}")
+    props.append(f"positive definite: {'YES' if positive_definite else 'NO'}")
+
+    if singular is None:
+        props.append("singular: UNKNOWN")
+    else:
+        props.append(f"singular: {'YES' if singular else 'NO'}")
+
+    props.append(f"orthogonal: {'YES' if orthogonal else 'NO'}")
+
+    if cond is None or not np.isfinite(cond):
+        props.append("condition number: UNKNOWN/INF")
+        props.append("ill-conditioned: UNKNOWN")
+    else:
+        props.append(f"condition number: {cond}")
+        props.append(f"ill-conditioned (cond >= {cond_threshold:g}): {'YES' if cond >= cond_threshold else 'NO'}")
+
+    if rank is None:
+        props.append("rank: UNKNOWN")
+    else:
+        props.append(f"rank: {rank}")
+
+    return props
+
+
+def format_property_block(name: str, val, prefix: str = "  ") -> list[str]:
+    lines = [f"{prefix}{name}:"]
+    for prop in matrix_property_checks(val):
+        lines.append(f"{prefix}  - {prop}")
+    return lines
 
 
 def values_equal(a, b, atol: float, rtol: float) -> tuple[bool, str]:
@@ -301,6 +400,15 @@ def compare_steps(
         lines.append(f"  Concrete: {tf_exec._framework_call_str(op_name, arg_names)}")
         lines.append("  Value:")
         lines.append(indent_text(format_value_for_diff(tf_val), prefix="    "))
+
+        lines.append("")
+        lines.append("Concrete matrix property checks:")
+        lines.append("  Inputs:")
+        for arg in op_inst.args:
+            lines.extend(format_property_block(arg.name, torch_env[arg.name], prefix="    "))
+        lines.append("  Outputs:")
+        lines.extend(format_property_block(f"torch {temp_name}", torch_val, prefix="    "))
+        lines.extend(format_property_block(f"tf {temp_name}", tf_val, prefix="    "))
 
         if not is_equal:
             lines.append("")

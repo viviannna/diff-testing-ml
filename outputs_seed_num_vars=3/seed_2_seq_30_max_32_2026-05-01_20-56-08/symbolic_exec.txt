@@ -1,0 +1,96 @@
+Random Seed: 2
+Original Seed Values:
+ x0:Matrix[IllConditioned](4, 4)
+ x1:Matrix[Random](4, 4)
+ x2:Matrix[Random](4, 4)
+ x3:Matrix[Random](4, 4)
+ x4:Matrix[Diagonal](4, 4)
+ x5:Matrix[Orthogonal](17, 17)
+ x6:Matrix[SPD](17, 17)
+ x7:Matrix[SPD](17, 17)
+ x8:Matrix[SPD](17, 17)
+ x9:Matrix[Random](17, 17)
+ x10:Matrix[Symmetric](26, 26)
+ x11:Matrix[Diagonal](26, 26)
+ x12:Matrix[Orthogonal](26, 26)
+ x13:Matrix[SPD](26, 26)
+ x14:Matrix[Random](26, 26)
+
+Generated Sequence:
+ 0: Cholesky(x7:Matrix[SPD](17, 17)) -> t0:Matrix[Random](17, 17)
+ 1: Add(t0:Matrix[Random](17, 17), x6:Matrix[SPD](17, 17)) -> t1:Matrix[Random](17, 17)
+ 2: LogDet(x10:Matrix[Symmetric](26, 26)) -> t2:Scalar
+ 3: LogDet(t1:Matrix[Random](17, 17)) -> t3:Scalar
+ 4: MatMul(x11:Matrix[Diagonal](26, 26), x14:Matrix[Random](26, 26)) -> t4:Matrix[Random](26, 26)
+ 5: Transpose(x6:Matrix[SPD](17, 17)) -> t5:Matrix[SPD](17, 17)
+ 6: MatMul(x9:Matrix[Random](17, 17), x7:Matrix[SPD](17, 17)) -> t6:Matrix[Random](17, 17)
+ 7: MatMul(t0:Matrix[Random](17, 17), x9:Matrix[Random](17, 17)) -> t7:Matrix[Random](17, 17)
+ 8: LogDet(t7:Matrix[Random](17, 17)) -> t8:Scalar
+ 9: Softmax(t1:Matrix[Random](17, 17)) -> t9:Matrix[Random](17, 17)
+ 10: Cholesky(t6:Matrix[Random](17, 17)) -> t10:Matrix[Random](17, 17)
+ 11: Solve(t9:Matrix[Random](17, 17), t10:Matrix[Random](17, 17)) -> t11:Matrix[Random](17, 17)
+ 12: LogDet(t9:Matrix[Random](17, 17)) -> t12:Scalar
+ 13: LogDet(t0:Matrix[Random](17, 17)) -> t13:Scalar
+ 14: Cholesky(x8:Matrix[SPD](17, 17)) -> t14:Matrix[Random](17, 17)
+ 15: Solve(t7:Matrix[Random](17, 17), t7:Matrix[Random](17, 17)) -> t15:Matrix[Random](17, 17)
+ 16: Transpose(t5:Matrix[SPD](17, 17)) -> t16:Matrix[SPD](17, 17)
+ 17: Cholesky(t6:Matrix[Random](17, 17)) -> t17:Matrix[Random](17, 17)
+ 18: LogDet(t10:Matrix[Random](17, 17)) -> t18:Scalar
+ 19: Cholesky(t16:Matrix[SPD](17, 17)) -> t19:Matrix[Random](17, 17)
+ 20: Cholesky(t4:Matrix[Random](26, 26)) -> t20:Matrix[Random](26, 26)
+ 21: Solve(t14:Matrix[Random](17, 17), t9:Matrix[Random](17, 17)) -> t21:Matrix[Random](17, 17)
+ 22: Cholesky(t14:Matrix[Random](17, 17)) -> t22:Matrix[Random](17, 17)
+ 23: LogDet(t19:Matrix[Random](17, 17)) -> t23:Scalar
+ 24: MatMul(t19:Matrix[Random](17, 17), t21:Matrix[Random](17, 17)) -> t24:Matrix[Random](17, 17)
+ 25: Sum(t19:Matrix[Random](17, 17)) -> t25:Scalar
+ 26: Cholesky(t4:Matrix[Random](26, 26)) -> t26:Matrix[Random](26, 26)
+ 27: Solve(t11:Matrix[Random](17, 17), t15:Matrix[Random](17, 17)) -> t27:Matrix[Random](17, 17)
+ 28: Solve(t16:Matrix[SPD](17, 17), x8:Matrix[SPD](17, 17)) -> t28:Matrix[Random](17, 17)
+ 29: Sum(t20:Matrix[Random](26, 26)) -> t29:Scalar
+
+Existing Values:
+ x0:Matrix[IllConditioned](4, 4)
+ x1:Matrix[Random](4, 4)
+ x2:Matrix[Random](4, 4)
+ x3:Matrix[Random](4, 4)
+ x4:Matrix[Diagonal](4, 4)
+ x5:Matrix[Orthogonal](17, 17)
+ x6:Matrix[SPD](17, 17)
+ x7:Matrix[SPD](17, 17)
+ x8:Matrix[SPD](17, 17)
+ x9:Matrix[Random](17, 17)
+ x10:Matrix[Symmetric](26, 26)
+ x11:Matrix[Diagonal](26, 26)
+ x12:Matrix[Orthogonal](26, 26)
+ x13:Matrix[SPD](26, 26)
+ x14:Matrix[Random](26, 26)
+ t0:Matrix[Random](17, 17)
+ t1:Matrix[Random](17, 17)
+ t2:Scalar
+ t3:Scalar
+ t4:Matrix[Random](26, 26)
+ t5:Matrix[SPD](17, 17)
+ t6:Matrix[Random](17, 17)
+ t7:Matrix[Random](17, 17)
+ t8:Scalar
+ t9:Matrix[Random](17, 17)
+ t10:Matrix[Random](17, 17)
+ t11:Matrix[Random](17, 17)
+ t12:Scalar
+ t13:Scalar
+ t14:Matrix[Random](17, 17)
+ t15:Matrix[Random](17, 17)
+ t16:Matrix[SPD](17, 17)
+ t17:Matrix[Random](17, 17)
+ t18:Scalar
+ t19:Matrix[Random](17, 17)
+ t20:Matrix[Random](26, 26)
+ t21:Matrix[Random](17, 17)
+ t22:Matrix[Random](17, 17)
+ t23:Scalar
+ t24:Matrix[Random](17, 17)
+ t25:Scalar
+ t26:Matrix[Random](26, 26)
+ t27:Matrix[Random](17, 17)
+ t28:Matrix[Random](17, 17)
+ t29:Scalar

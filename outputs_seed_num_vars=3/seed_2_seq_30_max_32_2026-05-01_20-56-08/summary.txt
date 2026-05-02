@@ -1,0 +1,123 @@
+Summary
+  seed: 2
+  num seed values: 3
+  seq length: 30
+  max size: 32
+  atol: 1e-05
+  rtol: 1e-05
+
+  total vars: 45
+  matches: 32
+  mismatches: 13
+
+MISMATCHES:
+t2:
+  shape: ()
+  max abs diff: nan
+  first mismatch index: ()
+  torch: 27.5741073246355
+  tf:    nan
+t3:
+  shape: ()
+  max abs diff: 2.6064272405108184
+  first mismatch index: ()
+  torch: 48.67773285170378
+  tf:    46.07130561119296
+t8:
+  shape: ()
+  max abs diff: nan
+  first mismatch index: ()
+  torch: 37.92920344204792
+  tf:    nan
+t10:
+  CRASH MISMATCH
+  torch: CRASH[torch] step=10 op=Cholesky(t6) _LinAlgError: linalg.cholesky: The factorization could not be completed because the input is not positive-definite (the leading minor of order 2 is not positive-definite).
+  tf:    [[     nan 0.       0.       ... 0.999999 0.999999 0.999999]
+ [     nan      nan 0.999999 ... 1.       1.       1.      ]
+ [     nan      nan      nan ... 1.       1.       1.      ]
+ ...
+ [     nan      nan      nan ...      nan 0.999999 0.999999]
+ [     nan      nan      nan ...      nan      nan 0.999857]
+ [     nan      nan      nan ...      nan      nan      nan]]
+t11:
+  CRASH MISMATCH
+  torch: CRASH[torch] step=11 op=Solve(t9, t10) UpstreamCrash: operation skipped because input(s) already crashed: t10
+  tf:    [[nan nan nan ... nan nan nan]
+ [nan nan nan ... nan nan nan]
+ [nan nan nan ... nan nan nan]
+ ...
+ [nan nan nan ... nan nan nan]
+ [nan nan nan ... nan nan nan]
+ [nan nan nan ... nan nan nan]]
+t13:
+  shape: ()
+  max abs diff: nan
+  first mismatch index: ()
+  torch: 18.79817401302224
+  tf:    nan
+t17:
+  CRASH MISMATCH
+  torch: CRASH[torch] step=17 op=Cholesky(t6) _LinAlgError: linalg.cholesky: The factorization could not be completed because the input is not positive-definite (the leading minor of order 2 is not positive-definite).
+  tf:    [[          nan  0.000000e+00  9.687924e-12 ...  1.545073e+00
+   3.221252e+00 -2.664582e+00]
+ [          nan           nan  3.932339e+00 ...  4.683264e-01
+  -3.025243e+00  9.317791e+00]
+ [          nan           nan           nan ...  5.031535e+00
+   7.913085e+00 -5.144808e+00]
+ ...
+ [          nan           nan           nan ...           nan
+  -6.424151e-01  7.039998e+00]
+ [          nan           nan           nan ...           nan
+            nan  4.649806e+00]
+ [          nan           nan           nan ...           nan
+            nan           nan]]
+t18:
+  CRASH MISMATCH
+  torch: CRASH[torch] step=18 op=LogDet(t10) UpstreamCrash: operation skipped because input(s) already crashed: t10
+  tf:    nan
+t20:
+  CRASH MISMATCH
+  torch: CRASH[torch] step=20 op=Cholesky(t4) _LinAlgError: linalg.cholesky: The factorization could not be completed because the input is not positive-definite (the leading minor of order 1 is not positive-definite).
+  tf:    [[          nan 0.000000e+000 2.471758e-314 ... 2.144419e-314
+  2.144393e-314 2.471407e-314]
+ [          nan           nan 2.471801e-314 ... 2.471802e-314
+  2.471798e-314 2.471426e-314]
+ [          nan           nan           nan ... 2.471574e-314
+  2.144393e-314 2.471367e-314]
+ ...
+ [          nan           nan           nan ...           nan
+  2.144393e-314 2.327427e-313]
+ [          nan           nan           nan ...           nan
+            nan 2.471642e-314]
+ [          nan           nan           nan ...           nan
+            nan           nan]]
+t22:
+  CRASH MISMATCH
+  torch: CRASH[torch] step=22 op=Cholesky(t14) _LinAlgError: linalg.cholesky: The factorization could not be completed because the input is not positive-definite (the leading minor of order 8 is not positive-definite).
+  tf:    [[      nan  0.        0.       ...  0.        0.        0.      ]
+ [      nan       nan  0.       ...  0.        0.        0.      ]
+ [      nan       nan       nan ...  0.        0.        0.      ]
+ ...
+ [      nan       nan       nan ...       nan -0.253086  0.15281 ]
+ [      nan       nan       nan ...       nan       nan -0.368267]
+ [      nan       nan       nan ...       nan       nan       nan]]
+t23:
+  shape: ()
+  max abs diff: nan
+  first mismatch index: ()
+  torch: 18.759303990595853
+  tf:    nan
+t26:
+  CRASH MISMATCH
+  torch: CRASH[torch] step=26 op=Cholesky(t4) _LinAlgError: linalg.cholesky: The factorization could not be completed because the input is not positive-definite (the leading minor of order 1 is not positive-definite).
+  tf:    [[      nan  0.        1.373261 ...  3.32168   1.805717 -2.483459]
+ [      nan       nan  0.702166 ... -1.102728  1.216381 -0.049508]
+ [      nan       nan       nan ...  1.403561  0.126855 -1.412778]
+ ...
+ [      nan       nan       nan ...       nan  1.630827  0.826915]
+ [      nan       nan       nan ...       nan       nan -0.426082]
+ [      nan       nan       nan ...       nan       nan       nan]]
+t29:
+  CRASH MISMATCH
+  torch: CRASH[torch] step=29 op=Sum(t20) UpstreamCrash: operation skipped because input(s) already crashed: t20
+  tf:    nan

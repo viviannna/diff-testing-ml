@@ -1,0 +1,2179 @@
+Line-by-line framework comparison
+atol=1e-05, rtol=1e-05
+  seed: 2
+  num seed values: 3
+  seq length: 30
+  max size: 32
+================================================================================
+
+--------------------------------------------------------------------------------
+Step 0
+  Symbolic: Cholesky(x7:Matrix[SPD](17, 17)) -> t0
+  Result: [97;42;1m MATCH [0m
+
+Torch
+  Concrete: torch.linalg.cholesky(x7)
+  Value:
+    [[ 5.13888   0.        0.       ...  0.        0.        0.      ]
+     [ 2.487223  4.495688  0.       ...  0.        0.        0.      ]
+     [ 2.737018  2.107825  3.779738 ...  0.        0.        0.      ]
+     ...
+     [-1.241149 -0.10744   0.907962 ...  1.399914  0.        0.      ]
+     [ 2.272988  0.336593 -0.468866 ...  0.05667   1.575691  0.      ]
+     [-0.392493 -0.897505 -0.695135 ... -0.044303  0.726733  1.09779 ]]
+
+TensorFlow
+  Concrete: tf.linalg.cholesky(x7)
+  Value:
+    [[ 5.13888   0.        0.       ...  0.        0.        0.      ]
+     [ 2.487223  4.495688  0.       ...  0.        0.        0.      ]
+     [ 2.737018  2.107825  3.779738 ...  0.        0.        0.      ]
+     ...
+     [-1.241149 -0.10744   0.907962 ...  1.399914  0.        0.      ]
+     [ 2.272988  0.336593 -0.468866 ...  0.05667   1.575691  0.      ]
+     [-0.392493 -0.897505 -0.695135 ... -0.044303  0.726733  1.09779 ]]
+
+Concrete matrix property checks:
+  Inputs:
+    x7:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: YES
+      - diagonal: NO
+      - positive definite: YES
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 956.8107046044456
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+  Outputs:
+    torch t0:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 30.932356919646857
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+    tf t0:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 30.932356919646892
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+
+--------------------------------------------------------------------------------
+Step 1
+  Symbolic: Add(t0:Matrix[Random](17, 17), x6:Matrix[SPD](17, 17)) -> t1
+  Result: [97;42;1m MATCH [0m
+
+Torch
+  Concrete: torch.add(t0, x6)
+  Value:
+    [[29.442805  5.891533  4.082665 ... -6.952591 -9.293466  0.835316]
+     [ 8.378756 35.086532  0.540904 ... -4.993282 -3.643831  2.946064]
+     [ 6.819683  2.648729 24.679425 ...  1.633623  3.728066 -3.316944]
+     ...
+     [-8.19374  -5.100722  2.541585 ... 22.976261  7.414703 -1.793591]
+     [-7.020478 -3.307238  3.2592   ...  7.471373 23.082468 -6.251153]
+     [ 0.442823  2.048559 -4.012079 ... -1.837894 -5.52442  35.879221]]
+
+TensorFlow
+  Concrete: tf.add(t0, x6)
+  Value:
+    [[29.442805  5.891533  4.082665 ... -6.952591 -9.293466  0.835316]
+     [ 8.378756 35.086532  0.540904 ... -4.993282 -3.643831  2.946064]
+     [ 6.819683  2.648729 24.679425 ...  1.633623  3.728066 -3.316944]
+     ...
+     [-8.19374  -5.100722  2.541585 ... 22.976261  7.414703 -1.793591]
+     [-7.020478 -3.307238  3.2592   ...  7.471373 23.082468 -6.251153]
+     [ 0.442823  2.048559 -4.012079 ... -1.837894 -5.52442  35.879221]]
+
+Concrete matrix property checks:
+  Inputs:
+    t0:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 30.932356919646857
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+    x6:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: YES
+      - diagonal: NO
+      - positive definite: YES
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 3060.8559797499406
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+  Outputs:
+    torch t1:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: YES
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 32.82736756360805
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+    tf t1:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: YES
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 32.82736756360804
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+
+--------------------------------------------------------------------------------
+Step 2
+  Symbolic: LogDet(x10:Matrix[Symmetric](26, 26)) -> t2
+  Result: [97;41;1m MISMATCH [0m
+
+Torch
+  Concrete: torch.linalg.logdet(x10)
+  Value:
+    27.5741073246355
+
+TensorFlow
+  Concrete: tf.linalg.logdet(x10)
+  Value:
+    nan
+
+Concrete matrix property checks:
+  Inputs:
+    x10:
+      - shape: (26, 26)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: YES
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 39.49309712999065
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 26
+  Outputs:
+    torch t2:
+      - not a matrix value (ndim=0)
+    tf t2:
+      - not a matrix value (ndim=0)
+
+[97;41;1m Difference: [0m
+  max abs diff: nan
+  first mismatch index: ()
+  torch: 27.5741073246355
+  tf:    nan
+
+Assumption checks:
+  API-specified assumptions:
+    PyTorch:
+      - square matrix (determinant is only defined for square matrices): PASS
+      - floating/complex dtype (logdet is a numerical linear algebra operation): PASS
+      - determinant nonzero for finite output (det(A)=0 makes log(det(A)) singular / -inf): PASS
+      - determinant positive for finite real logdet (real log(x) requires x > 0): PASS
+    TensorFlow:
+      - square matrix (TensorFlow requires shape [..., M, M]): PASS
+      - floating/complex dtype (TensorFlow only accepts float/complex matrix dtypes): PASS
+      - Hermitian/symmetric positive definite (TensorFlow logdet only supports HPD matrices): [97;41;1m FAIL [0m
+  Implied mathematical/numerical assumptions:
+    - determinant nonzero (zero determinant means the matrix is singular): PASS
+    - determinant positive (needed for a finite real-valued log(det(A))): PASS
+    - symmetric/Hermitian-real (relevant because HPD implies symmetry/Hermitian structure): PASS
+    - positive definite (all eigenvalues must be positive for Cholesky/HPD assumptions): [97;41;1m FAIL [0m
+    - well-conditioned, cond(A) < 1e8 (large condition number means numerical instability is more likely): PASS
+    - det(A) (raw determinant used to interpret logdet behavior): 944675505110.0278
+    - cond(A) (condition number used as a numerical stability diagnostic): 39.49309712999065
+
+--------------------------------------------------------------------------------
+Step 3
+  Symbolic: LogDet(t1:Matrix[Random](17, 17)) -> t3
+  Result: [97;41;1m MISMATCH [0m
+
+Torch
+  Concrete: torch.linalg.logdet(t1)
+  Value:
+    48.67773285170378
+
+TensorFlow
+  Concrete: tf.linalg.logdet(t1)
+  Value:
+    46.07130561119296
+
+Concrete matrix property checks:
+  Inputs:
+    t1:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: YES
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 32.82736756360805
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+  Outputs:
+    torch t3:
+      - not a matrix value (ndim=0)
+    tf t3:
+      - not a matrix value (ndim=0)
+
+[97;41;1m Difference: [0m
+  max abs diff: 2.6064272405108184
+  first mismatch index: ()
+  torch: 48.67773285170378
+  tf:    46.07130561119296
+
+Assumption checks:
+  API-specified assumptions:
+    PyTorch:
+      - square matrix (determinant is only defined for square matrices): PASS
+      - floating/complex dtype (logdet is a numerical linear algebra operation): PASS
+      - determinant nonzero for finite output (det(A)=0 makes log(det(A)) singular / -inf): PASS
+      - determinant positive for finite real logdet (real log(x) requires x > 0): PASS
+    TensorFlow:
+      - square matrix (TensorFlow requires shape [..., M, M]): PASS
+      - floating/complex dtype (TensorFlow only accepts float/complex matrix dtypes): PASS
+      - Hermitian/symmetric positive definite (TensorFlow logdet only supports HPD matrices): [97;41;1m FAIL [0m
+  Implied mathematical/numerical assumptions:
+    - determinant nonzero (zero determinant means the matrix is singular): PASS
+    - determinant positive (needed for a finite real-valued log(det(A))): PASS
+    - symmetric/Hermitian-real (relevant because HPD implies symmetry/Hermitian structure): [97;41;1m FAIL [0m
+    - positive definite (all eigenvalues must be positive for Cholesky/HPD assumptions): PASS
+    - well-conditioned, cond(A) < 1e8 (large condition number means numerical instability is more likely): PASS
+    - det(A) (raw determinant used to interpret logdet behavior): 1.3818813928438817e+21
+    - cond(A) (condition number used as a numerical stability diagnostic): 32.82736756360805
+
+--------------------------------------------------------------------------------
+Step 4
+  Symbolic: MatMul(x11:Matrix[Diagonal](26, 26), x14:Matrix[Random](26, 26)) -> t4
+  Result: [97;42;1m MATCH [0m
+
+Torch
+  Concrete: torch.matmul(x11, x14)
+  Value:
+    [[-0.293437  2.875576  1.373261 ...  3.32168   1.805717 -2.483459]
+     [-0.360802  2.009558  0.702166 ... -1.102728  1.216381 -0.049508]
+     [-0.366498  0.950833 -0.547999 ...  1.403561  0.126855 -1.412778]
+     ...
+     [ 1.630433 -0.364939  0.080012 ...  0.548592  1.630827  0.826915]
+     [ 1.801634  2.104468 -3.245842 ... -3.205616  2.311388 -0.426082]
+     [ 2.711975  3.497758  2.149074 ...  0.991968  0.184317 -0.895153]]
+
+TensorFlow
+  Concrete: tf.linalg.matmul(x11, x14)
+  Value:
+    [[-0.293437  2.875576  1.373261 ...  3.32168   1.805717 -2.483459]
+     [-0.360802  2.009558  0.702166 ... -1.102728  1.216381 -0.049508]
+     [-0.366498  0.950833 -0.547999 ...  1.403561  0.126855 -1.412778]
+     ...
+     [ 1.630433 -0.364939  0.080012 ...  0.548592  1.630827  0.826915]
+     [ 1.801634  2.104468 -3.245842 ... -3.205616  2.311388 -0.426082]
+     [ 2.711975  3.497758  2.149074 ...  0.991968  0.184317 -0.895153]]
+
+Concrete matrix property checks:
+  Inputs:
+    x11:
+      - shape: (26, 26)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: YES
+      - diagonal: YES
+      - positive definite: YES
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 3.9315741313746915
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 26
+    x14:
+      - shape: (26, 26)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 51.24174348388514
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 26
+  Outputs:
+    torch t4:
+      - shape: (26, 26)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 100.32045581006112
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 26
+    tf t4:
+      - shape: (26, 26)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 100.32045581006112
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 26
+
+--------------------------------------------------------------------------------
+Step 5
+  Symbolic: Transpose(x6:Matrix[SPD](17, 17)) -> t5
+  Result: [97;42;1m MATCH [0m
+
+Torch
+  Concrete: torch.transpose(x6, 0, 1)
+  Value:
+    [[24.303925  5.891533  4.082665 ... -6.952591 -9.293466  0.835316]
+     [ 5.891533 30.590844  0.540904 ... -4.993282 -3.643831  2.946064]
+     [ 4.082665  0.540904 20.899687 ...  1.633623  3.728066 -3.316944]
+     ...
+     [-6.952591 -4.993282  1.633623 ... 21.576348  7.414703 -1.793591]
+     [-9.293466 -3.643831  3.728066 ...  7.414703 21.506778 -6.251153]
+     [ 0.835316  2.946064 -3.316944 ... -1.793591 -6.251153 34.781431]]
+
+TensorFlow
+  Concrete: tf.transpose(x6, perm=[1, 0])
+  Value:
+    [[24.303925  5.891533  4.082665 ... -6.952591 -9.293466  0.835316]
+     [ 5.891533 30.590844  0.540904 ... -4.993282 -3.643831  2.946064]
+     [ 4.082665  0.540904 20.899687 ...  1.633623  3.728066 -3.316944]
+     ...
+     [-6.952591 -4.993282  1.633623 ... 21.576348  7.414703 -1.793591]
+     [-9.293466 -3.643831  3.728066 ...  7.414703 21.506778 -6.251153]
+     [ 0.835316  2.946064 -3.316944 ... -1.793591 -6.251153 34.781431]]
+
+Concrete matrix property checks:
+  Inputs:
+    x6:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: YES
+      - diagonal: NO
+      - positive definite: YES
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 3060.8559797499406
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+  Outputs:
+    torch t5:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: YES
+      - diagonal: NO
+      - positive definite: YES
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 3060.8559797499406
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+    tf t5:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: YES
+      - diagonal: NO
+      - positive definite: YES
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 3060.8559797499406
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+
+--------------------------------------------------------------------------------
+Step 6
+  Symbolic: MatMul(x9:Matrix[Random](17, 17), x7:Matrix[SPD](17, 17)) -> t6
+  Result: [97;42;1m MATCH [0m
+
+Torch
+  Concrete: torch.matmul(x9, x7)
+  Value:
+    [[ 35.366692  34.469401  49.314118 ... -35.612634  23.16884  -49.662608]
+     [ 29.367425   6.43398   48.716562 ...   2.145844  42.300963 -31.408445]
+     [ 22.664365  22.121932 -21.320722 ... -10.011348 -17.46797   14.470593]
+     ...
+     [-23.806646  -3.469082   6.408282 ...  -3.648376  16.328724 -31.016654]
+     [-10.706962 -45.517216 -26.735454 ...  48.222665 -62.25108   -5.629591]
+     [-57.353753 -88.043874 -81.031922 ...  14.200938   1.494632  -5.175297]]
+
+TensorFlow
+  Concrete: tf.linalg.matmul(x9, x7)
+  Value:
+    [[ 35.366692  34.469401  49.314118 ... -35.612634  23.16884  -49.662608]
+     [ 29.367425   6.43398   48.716562 ...   2.145844  42.300963 -31.408445]
+     [ 22.664365  22.121932 -21.320722 ... -10.011348 -17.46797   14.470593]
+     ...
+     [-23.806646  -3.469082   6.408282 ...  -3.648376  16.328724 -31.016654]
+     [-10.706962 -45.517216 -26.735454 ...  48.222665 -62.25108   -5.629591]
+     [-57.353753 -88.043874 -81.031922 ...  14.200938   1.494632  -5.175297]]
+
+Concrete matrix property checks:
+  Inputs:
+    x9:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 15.65604758901965
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+    x7:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: YES
+      - diagonal: NO
+      - positive definite: YES
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 956.8107046044456
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+  Outputs:
+    torch t6:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 2497.929746831967
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+    tf t6:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 2497.9297468318073
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+
+--------------------------------------------------------------------------------
+Step 7
+  Symbolic: MatMul(t0:Matrix[Random](17, 17), x9:Matrix[Random](17, 17)) -> t7
+  Result: [97;42;1m MATCH [0m
+
+Torch
+  Concrete: torch.matmul(t0, x9)
+  Value:
+    [[  1.545073   0.468326   5.031535 ...   3.420471  -5.578185  -5.670325]
+     [  3.221252  -3.025243   7.913085 ...  -0.642415  -3.739957  -5.650606]
+     [  9.412986   4.452712  -0.756057 ...  -0.718212 -10.650912   2.513586]
+     ...
+     [  0.228045  -8.223127  -1.957924 ...  -0.760672   0.412465  -1.334709]
+     [  9.867763   1.761156   9.331451 ...   5.528161  -7.470778 -11.122597]
+     [  2.085908   5.320722   0.319968 ...  -4.086876  -1.239536   2.539532]]
+
+TensorFlow
+  Concrete: tf.linalg.matmul(t0, x9)
+  Value:
+    [[  1.545073   0.468326   5.031535 ...   3.420471  -5.578185  -5.670325]
+     [  3.221252  -3.025243   7.913085 ...  -0.642415  -3.739957  -5.650606]
+     [  9.412986   4.452712  -0.756057 ...  -0.718212 -10.650912   2.513586]
+     ...
+     [  0.228045  -8.223127  -1.957924 ...  -0.760672   0.412465  -1.334709]
+     [  9.867763   1.761156   9.331451 ...   5.528161  -7.470778 -11.122597]
+     [  2.085908   5.320722   0.319968 ...  -4.086876  -1.239536   2.539532]]
+
+Concrete matrix property checks:
+  Inputs:
+    t0:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 30.932356919646857
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+    x9:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 15.65604758901965
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+  Outputs:
+    torch t7:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 86.80219197895138
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+    tf t7:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 86.80219197895084
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+
+--------------------------------------------------------------------------------
+Step 8
+  Symbolic: LogDet(t7:Matrix[Random](17, 17)) -> t8
+  Result: [97;41;1m MISMATCH [0m
+
+Torch
+  Concrete: torch.linalg.logdet(t7)
+  Value:
+    37.92920344204792
+
+TensorFlow
+  Concrete: tf.linalg.logdet(t7)
+  Value:
+    nan
+
+Concrete matrix property checks:
+  Inputs:
+    t7:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 86.80219197895138
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+  Outputs:
+    torch t8:
+      - not a matrix value (ndim=0)
+    tf t8:
+      - not a matrix value (ndim=0)
+
+[97;41;1m Difference: [0m
+  max abs diff: nan
+  first mismatch index: ()
+  torch: 37.92920344204792
+  tf:    nan
+
+Assumption checks:
+  API-specified assumptions:
+    PyTorch:
+      - square matrix (determinant is only defined for square matrices): PASS
+      - floating/complex dtype (logdet is a numerical linear algebra operation): PASS
+      - determinant nonzero for finite output (det(A)=0 makes log(det(A)) singular / -inf): PASS
+      - determinant positive for finite real logdet (real log(x) requires x > 0): PASS
+    TensorFlow:
+      - square matrix (TensorFlow requires shape [..., M, M]): PASS
+      - floating/complex dtype (TensorFlow only accepts float/complex matrix dtypes): PASS
+      - Hermitian/symmetric positive definite (TensorFlow logdet only supports HPD matrices): [97;41;1m FAIL [0m
+  Implied mathematical/numerical assumptions:
+    - determinant nonzero (zero determinant means the matrix is singular): PASS
+    - determinant positive (needed for a finite real-valued log(det(A))): PASS
+    - symmetric/Hermitian-real (relevant because HPD implies symmetry/Hermitian structure): [97;41;1m FAIL [0m
+    - positive definite (all eigenvalues must be positive for Cholesky/HPD assumptions): [97;41;1m FAIL [0m
+    - well-conditioned, cond(A) < 1e8 (large condition number means numerical instability is more likely): PASS
+    - det(A) (raw determinant used to interpret logdet behavior): 2.967862373582345e+16
+    - cond(A) (condition number used as a numerical stability diagnostic): 86.80219197895138
+
+--------------------------------------------------------------------------------
+Step 9
+  Symbolic: Softmax(t1:Matrix[Random](17, 17)) -> t9
+  Result: [97;42;1m MATCH [0m
+
+Torch
+  Concrete: torch.nn.functional.softmax(t1, dim=-1)
+  Value:
+    [[9.999988e-01 5.913058e-11 9.687924e-12 ... 1.561996e-16 1.503317e-17
+      3.766388e-13]
+     [2.517448e-12 1.000000e+00 9.931724e-16 ... 3.922458e-18 1.512228e-17
+      1.100455e-14]
+     [1.752316e-08 2.705142e-10 9.999999e-01 ... 9.802466e-11 7.960497e-10
+      6.939547e-13]
+     ...
+     [2.904292e-14 6.402076e-13 1.334543e-09 ... 9.999989e-01 1.744620e-07
+      1.748192e-11]
+     [8.441013e-14 3.459667e-12 2.459247e-09 ... 1.660067e-07 9.998571e-01
+      1.821831e-13]
+     [4.075378e-16 2.030159e-15 4.736183e-18 ... 4.165479e-17 1.043824e-18
+      9.999999e-01]]
+
+TensorFlow
+  Concrete: tf.nn.softmax(t1, axis=-1)
+  Value:
+    [[9.999988e-01 5.913058e-11 9.687924e-12 ... 1.561996e-16 1.503317e-17
+      3.766388e-13]
+     [2.517448e-12 1.000000e+00 9.931724e-16 ... 3.922458e-18 1.512228e-17
+      1.100455e-14]
+     [1.752316e-08 2.705142e-10 9.999999e-01 ... 9.802466e-11 7.960497e-10
+      6.939547e-13]
+     ...
+     [2.904292e-14 6.402076e-13 1.334543e-09 ... 9.999989e-01 1.744620e-07
+      1.748192e-11]
+     [8.441013e-14 3.459667e-12 2.459247e-09 ... 1.660067e-07 9.998571e-01
+      1.821831e-13]
+     [4.075378e-16 2.030159e-15 4.736183e-18 ... 4.165479e-17 1.043824e-18
+      9.999999e-01]]
+
+Concrete matrix property checks:
+  Inputs:
+    t1:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: YES
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 32.82736756360805
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+  Outputs:
+    torch t9:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: YES
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 1.0634684350064325
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+    tf t9:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: YES
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 1.0634684350064332
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+
+--------------------------------------------------------------------------------
+Step 10
+  Symbolic: Cholesky(t6:Matrix[Random](17, 17)) -> t10
+  Result: [97;41;1m MISMATCH [0m
+
+Torch
+  Concrete: torch.linalg.cholesky(t6)
+  Value:
+    CRASH[torch] step=10 op=Cholesky(t6) _LinAlgError: linalg.cholesky: The factorization could not be completed because the input is not positive-definite (the leading minor of order 2 is not positive-definite).
+
+TensorFlow
+  Concrete: tf.linalg.cholesky(t6)
+  Value:
+    [[     nan 0.       0.       ... 0.999999 0.999999 0.999999]
+     [     nan      nan 0.999999 ... 1.       1.       1.      ]
+     [     nan      nan      nan ... 1.       1.       1.      ]
+     ...
+     [     nan      nan      nan ...      nan 0.999999 0.999999]
+     [     nan      nan      nan ...      nan      nan 0.999857]
+     [     nan      nan      nan ...      nan      nan      nan]]
+
+Concrete matrix property checks:
+  Inputs:
+    t6:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 2497.929746831967
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+  Outputs:
+    torch t10:
+      - crashed: YES
+    tf t10:
+      - shape: (17, 17)
+      - square: YES
+      - finite: NO
+      - contains NaN: YES
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: UNKNOWN
+      - orthogonal: NO
+      - condition number: UNKNOWN/INF
+      - ill-conditioned: UNKNOWN
+      - rank: UNKNOWN
+
+[97;41;1m Difference: [0m
+  only one framework crashed
+  torch: CRASH[torch] step=10 op=Cholesky(t6) _LinAlgError: linalg.cholesky: The factorization could not be completed because the input is not positive-definite (the leading minor of order 2 is not positive-definite).
+  tf:    [[     nan 0.       0.       ... 0.999999 0.999999 0.999999]
+   [     nan      nan 0.999999 ... 1.       1.       1.      ]
+   [     nan      nan      nan ... 1.       1.       1.      ]
+   ...
+   [     nan      nan      nan ...      nan 0.999999 0.999999]
+   [     nan      nan      nan ...      nan      nan 0.999857]
+   [     nan      nan      nan ...      nan      nan      nan]]
+
+Assumption checks:
+  API-specified assumptions:
+    PyTorch:
+      - square matrix (Cholesky decomposes square matrices): PASS
+      - floating/complex dtype (Cholesky is defined over real/complex numerical matrices): PASS
+      - symmetric/Hermitian (Cholesky assumes real symmetric or complex Hermitian input): [97;41;1m FAIL [0m
+      - positive definite (Cholesky requires all eigenvalues to be positive): [97;41;1m FAIL [0m
+    TensorFlow:
+      - square matrix (TensorFlow Cholesky expects square inner matrix dimensions): PASS
+      - floating/complex dtype (Cholesky is a numerical factorization): PASS
+      - symmetric/Hermitian (TensorFlow Cholesky assumes symmetric/Hermitian input): [97;41;1m FAIL [0m
+      - positive definite (TensorFlow Cholesky requires positive definiteness): [97;41;1m FAIL [0m
+  Implied mathematical/numerical assumptions:
+    - well-conditioned, cond(A) < 1e8 (ill-conditioned matrices can amplify numerical error): PASS
+    - cond(A) (condition number used as a numerical stability diagnostic): 2497.929746831967
+
+--------------------------------------------------------------------------------
+Step 11
+  Symbolic: Solve(t9:Matrix[Random](17, 17), t10:Matrix[Random](17, 17)) -> t11
+  Result: [97;41;1m MISMATCH [0m
+
+Torch
+  Concrete: torch.linalg.solve(t9, t10)
+  Value:
+    CRASH[torch] step=11 op=Solve(t9, t10) UpstreamCrash: operation skipped because input(s) already crashed: t10
+
+TensorFlow
+  Concrete: tf.linalg.solve(t9, t10)
+  Value:
+    [[nan nan nan ... nan nan nan]
+     [nan nan nan ... nan nan nan]
+     [nan nan nan ... nan nan nan]
+     ...
+     [nan nan nan ... nan nan nan]
+     [nan nan nan ... nan nan nan]
+     [nan nan nan ... nan nan nan]]
+
+Concrete matrix property checks:
+  Inputs:
+    t9:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: YES
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 1.0634684350064325
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+    t10:
+      - crashed: YES
+  Outputs:
+    torch t11:
+      - crashed: YES
+    tf t11:
+      - shape: (17, 17)
+      - square: YES
+      - finite: NO
+      - contains NaN: YES
+      - contains Inf: NO
+      - symmetric: YES
+      - diagonal: NO
+      - positive definite: NO
+      - singular: UNKNOWN
+      - orthogonal: NO
+      - condition number: UNKNOWN/INF
+      - ill-conditioned: UNKNOWN
+      - rank: UNKNOWN
+
+[97;41;1m Difference: [0m
+  only one framework crashed
+  torch: CRASH[torch] step=11 op=Solve(t9, t10) UpstreamCrash: operation skipped because input(s) already crashed: t10
+  tf:    [[nan nan nan ... nan nan nan]
+   [nan nan nan ... nan nan nan]
+   [nan nan nan ... nan nan nan]
+   ...
+   [nan nan nan ... nan nan nan]
+   [nan nan nan ... nan nan nan]
+   [nan nan nan ... nan nan nan]]
+
+--------------------------------------------------------------------------------
+Step 12
+  Symbolic: LogDet(t9:Matrix[Random](17, 17)) -> t12
+  Result: [97;42;1m MATCH [0m
+
+Torch
+  Concrete: torch.linalg.logdet(t9)
+  Value:
+    -0.04372576673986423
+
+TensorFlow
+  Concrete: tf.linalg.logdet(t9)
+  Value:
+    -0.0437257853056362
+
+Concrete matrix property checks:
+  Inputs:
+    t9:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: YES
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 1.0634684350064325
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+  Outputs:
+    torch t12:
+      - not a matrix value (ndim=0)
+    tf t12:
+      - not a matrix value (ndim=0)
+
+--------------------------------------------------------------------------------
+Step 13
+  Symbolic: LogDet(t0:Matrix[Random](17, 17)) -> t13
+  Result: [97;41;1m MISMATCH [0m
+
+Torch
+  Concrete: torch.linalg.logdet(t0)
+  Value:
+    18.79817401302224
+
+TensorFlow
+  Concrete: tf.linalg.logdet(t0)
+  Value:
+    nan
+
+Concrete matrix property checks:
+  Inputs:
+    t0:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 30.932356919646857
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+  Outputs:
+    torch t13:
+      - not a matrix value (ndim=0)
+    tf t13:
+      - not a matrix value (ndim=0)
+
+[97;41;1m Difference: [0m
+  max abs diff: nan
+  first mismatch index: ()
+  torch: 18.79817401302224
+  tf:    nan
+
+Assumption checks:
+  API-specified assumptions:
+    PyTorch:
+      - square matrix (determinant is only defined for square matrices): PASS
+      - floating/complex dtype (logdet is a numerical linear algebra operation): PASS
+      - determinant nonzero for finite output (det(A)=0 makes log(det(A)) singular / -inf): PASS
+      - determinant positive for finite real logdet (real log(x) requires x > 0): PASS
+    TensorFlow:
+      - square matrix (TensorFlow requires shape [..., M, M]): PASS
+      - floating/complex dtype (TensorFlow only accepts float/complex matrix dtypes): PASS
+      - Hermitian/symmetric positive definite (TensorFlow logdet only supports HPD matrices): [97;41;1m FAIL [0m
+  Implied mathematical/numerical assumptions:
+    - determinant nonzero (zero determinant means the matrix is singular): PASS
+    - determinant positive (needed for a finite real-valued log(det(A))): PASS
+    - symmetric/Hermitian-real (relevant because HPD implies symmetry/Hermitian structure): [97;41;1m FAIL [0m
+    - positive definite (all eigenvalues must be positive for Cholesky/HPD assumptions): [97;41;1m FAIL [0m
+    - well-conditioned, cond(A) < 1e8 (large condition number means numerical instability is more likely): PASS
+    - det(A) (raw determinant used to interpret logdet behavior): 145862362.58675757
+    - cond(A) (condition number used as a numerical stability diagnostic): 30.932356919646857
+
+--------------------------------------------------------------------------------
+Step 14
+  Symbolic: Cholesky(x8:Matrix[SPD](17, 17)) -> t14
+  Result: [97;42;1m MATCH [0m
+
+Torch
+  Concrete: torch.linalg.cholesky(x8)
+  Value:
+    [[ 4.334303  0.        0.       ...  0.        0.        0.      ]
+     [ 0.526192  4.591108  0.       ...  0.        0.        0.      ]
+     [ 0.053963  0.128465  4.86743  ...  0.        0.        0.      ]
+     ...
+     [-1.390339 -0.953397  0.167866 ...  2.65802   0.        0.      ]
+     [ 0.285134 -0.328771  0.653038 ... -0.36603   3.178634  0.      ]
+     [ 0.378453  0.365196 -0.47292  ... -0.578417  2.199971  0.553166]]
+
+TensorFlow
+  Concrete: tf.linalg.cholesky(x8)
+  Value:
+    [[ 4.334303  0.        0.       ...  0.        0.        0.      ]
+     [ 0.526192  4.591108  0.       ...  0.        0.        0.      ]
+     [ 0.053963  0.128465  4.86743  ...  0.        0.        0.      ]
+     ...
+     [-1.390339 -0.953397  0.167866 ...  2.65802   0.        0.      ]
+     [ 0.285134 -0.328771  0.653038 ... -0.36603   3.178634  0.      ]
+     [ 0.378453  0.365196 -0.47292  ... -0.578417  2.199971  0.553166]]
+
+Concrete matrix property checks:
+  Inputs:
+    x8:
+      - shape: (17, 17)
+      - square: YES
+      - finite: NO
+      - contains NaN: NO
+      - contains Inf: YES
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: YES
+      - singular: YES
+      - orthogonal: NO
+      - condition number: UNKNOWN/INF
+      - ill-conditioned: UNKNOWN
+      - rank: 0
+  Outputs:
+    torch t14:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 57.57538146128861
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+    tf t14:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 57.57538146128827
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+
+--------------------------------------------------------------------------------
+Step 15
+  Symbolic: Solve(t7:Matrix[Random](17, 17), t7:Matrix[Random](17, 17)) -> t15
+  Result: [97;42;1m MATCH [0m
+
+Torch
+  Concrete: torch.linalg.solve(t7, t7)
+  Value:
+    [[ 1.000000e+00  6.273693e-16  1.394578e-15 ... -1.165632e-15
+      -1.422779e-15  1.252913e-15]
+     [ 3.759354e-16  1.000000e+00  8.735573e-17 ... -3.931236e-17
+      -4.185749e-16  1.154007e-15]
+     [ 1.077052e-16  1.054305e-16  1.000000e+00 ... -9.539773e-17
+      -1.633747e-16  1.142856e-15]
+     ...
+     [ 3.347288e-16  7.755193e-17  2.537717e-16 ...  1.000000e+00
+      -4.005250e-16  5.982338e-16]
+     [ 1.767866e-16  3.507995e-16  7.661086e-16 ... -8.969527e-16
+       1.000000e+00 -5.223172e-16]
+     [-8.074038e-17 -2.285692e-16 -5.855840e-16 ...  3.820218e-16
+       7.756452e-16  1.000000e+00]]
+
+TensorFlow
+  Concrete: tf.linalg.solve(t7, t7)
+  Value:
+    [[ 1.000000e+00 -2.922964e-16 -1.360489e-15 ... -2.494322e-16
+       3.040061e-16  1.285850e-15]
+     [ 7.019056e-17  1.000000e+00  1.608774e-16 ...  2.106427e-17
+       4.030835e-16 -7.096826e-17]
+     [ 6.667542e-17  2.262453e-17  1.000000e+00 ... -6.186070e-17
+       2.166107e-17  3.211454e-16]
+     ...
+     [ 2.112885e-17  2.642595e-16  1.205386e-16 ...  1.000000e+00
+       2.683562e-16  6.046763e-17]
+     [ 3.780241e-17 -5.531675e-17  1.307160e-17 ... -1.354972e-16
+       1.000000e+00  1.213994e-15]
+     [-8.065564e-17  1.545277e-16  6.407143e-16 ...  1.689020e-16
+      -2.057020e-16  1.000000e+00]]
+
+Concrete matrix property checks:
+  Inputs:
+    t7:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 86.80219197895138
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+    t7:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 86.80219197895138
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+  Outputs:
+    torch t15:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: YES
+      - diagonal: YES
+      - positive definite: YES
+      - singular: NO
+      - orthogonal: YES
+      - condition number: 1.0000000000000047
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+    tf t15:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: YES
+      - diagonal: YES
+      - positive definite: YES
+      - singular: NO
+      - orthogonal: YES
+      - condition number: 1.000000000000003
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+
+--------------------------------------------------------------------------------
+Step 16
+  Symbolic: Transpose(t5:Matrix[SPD](17, 17)) -> t16
+  Result: [97;42;1m MATCH [0m
+
+Torch
+  Concrete: torch.transpose(t5, 0, 1)
+  Value:
+    [[24.303925  5.891533  4.082665 ... -6.952591 -9.293466  0.835316]
+     [ 5.891533 30.590844  0.540904 ... -4.993282 -3.643831  2.946064]
+     [ 4.082665  0.540904 20.899687 ...  1.633623  3.728066 -3.316944]
+     ...
+     [-6.952591 -4.993282  1.633623 ... 21.576348  7.414703 -1.793591]
+     [-9.293466 -3.643831  3.728066 ...  7.414703 21.506778 -6.251153]
+     [ 0.835316  2.946064 -3.316944 ... -1.793591 -6.251153 34.781431]]
+
+TensorFlow
+  Concrete: tf.transpose(t5, perm=[1, 0])
+  Value:
+    [[24.303925  5.891533  4.082665 ... -6.952591 -9.293466  0.835316]
+     [ 5.891533 30.590844  0.540904 ... -4.993282 -3.643831  2.946064]
+     [ 4.082665  0.540904 20.899687 ...  1.633623  3.728066 -3.316944]
+     ...
+     [-6.952591 -4.993282  1.633623 ... 21.576348  7.414703 -1.793591]
+     [-9.293466 -3.643831  3.728066 ...  7.414703 21.506778 -6.251153]
+     [ 0.835316  2.946064 -3.316944 ... -1.793591 -6.251153 34.781431]]
+
+Concrete matrix property checks:
+  Inputs:
+    t5:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: YES
+      - diagonal: NO
+      - positive definite: YES
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 3060.8559797499406
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+  Outputs:
+    torch t16:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: YES
+      - diagonal: NO
+      - positive definite: YES
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 3060.8559797499406
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+    tf t16:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: YES
+      - diagonal: NO
+      - positive definite: YES
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 3060.8559797499406
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+
+--------------------------------------------------------------------------------
+Step 17
+  Symbolic: Cholesky(t6:Matrix[Random](17, 17)) -> t17
+  Result: [97;41;1m MISMATCH [0m
+
+Torch
+  Concrete: torch.linalg.cholesky(t6)
+  Value:
+    CRASH[torch] step=17 op=Cholesky(t6) _LinAlgError: linalg.cholesky: The factorization could not be completed because the input is not positive-definite (the leading minor of order 2 is not positive-definite).
+
+TensorFlow
+  Concrete: tf.linalg.cholesky(t6)
+  Value:
+    [[          nan  0.000000e+00  9.687924e-12 ...  1.545073e+00
+       3.221252e+00 -2.664582e+00]
+     [          nan           nan  3.932339e+00 ...  4.683264e-01
+      -3.025243e+00  9.317791e+00]
+     [          nan           nan           nan ...  5.031535e+00
+       7.913085e+00 -5.144808e+00]
+     ...
+     [          nan           nan           nan ...           nan
+      -6.424151e-01  7.039998e+00]
+     [          nan           nan           nan ...           nan
+                nan  4.649806e+00]
+     [          nan           nan           nan ...           nan
+                nan           nan]]
+
+Concrete matrix property checks:
+  Inputs:
+    t6:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 2497.929746831967
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+  Outputs:
+    torch t17:
+      - crashed: YES
+    tf t17:
+      - shape: (17, 17)
+      - square: YES
+      - finite: NO
+      - contains NaN: YES
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: UNKNOWN
+      - orthogonal: NO
+      - condition number: UNKNOWN/INF
+      - ill-conditioned: UNKNOWN
+      - rank: UNKNOWN
+
+[97;41;1m Difference: [0m
+  only one framework crashed
+  torch: CRASH[torch] step=17 op=Cholesky(t6) _LinAlgError: linalg.cholesky: The factorization could not be completed because the input is not positive-definite (the leading minor of order 2 is not positive-definite).
+  tf:    [[          nan  0.000000e+00  9.687924e-12 ...  1.545073e+00
+     3.221252e+00 -2.664582e+00]
+   [          nan           nan  3.932339e+00 ...  4.683264e-01
+    -3.025243e+00  9.317791e+00]
+   [          nan           nan           nan ...  5.031535e+00
+     7.913085e+00 -5.144808e+00]
+   ...
+   [          nan           nan           nan ...           nan
+    -6.424151e-01  7.039998e+00]
+   [          nan           nan           nan ...           nan
+              nan  4.649806e+00]
+   [          nan           nan           nan ...           nan
+              nan           nan]]
+
+Assumption checks:
+  API-specified assumptions:
+    PyTorch:
+      - square matrix (Cholesky decomposes square matrices): PASS
+      - floating/complex dtype (Cholesky is defined over real/complex numerical matrices): PASS
+      - symmetric/Hermitian (Cholesky assumes real symmetric or complex Hermitian input): [97;41;1m FAIL [0m
+      - positive definite (Cholesky requires all eigenvalues to be positive): [97;41;1m FAIL [0m
+    TensorFlow:
+      - square matrix (TensorFlow Cholesky expects square inner matrix dimensions): PASS
+      - floating/complex dtype (Cholesky is a numerical factorization): PASS
+      - symmetric/Hermitian (TensorFlow Cholesky assumes symmetric/Hermitian input): [97;41;1m FAIL [0m
+      - positive definite (TensorFlow Cholesky requires positive definiteness): [97;41;1m FAIL [0m
+  Implied mathematical/numerical assumptions:
+    - well-conditioned, cond(A) < 1e8 (ill-conditioned matrices can amplify numerical error): PASS
+    - cond(A) (condition number used as a numerical stability diagnostic): 2497.929746831967
+
+--------------------------------------------------------------------------------
+Step 18
+  Symbolic: LogDet(t10:Matrix[Random](17, 17)) -> t18
+  Result: [97;41;1m MISMATCH [0m
+
+Torch
+  Concrete: torch.linalg.logdet(t10)
+  Value:
+    CRASH[torch] step=18 op=LogDet(t10) UpstreamCrash: operation skipped because input(s) already crashed: t10
+
+TensorFlow
+  Concrete: tf.linalg.logdet(t10)
+  Value:
+    nan
+
+Concrete matrix property checks:
+  Inputs:
+    t10:
+      - crashed: YES
+  Outputs:
+    torch t18:
+      - crashed: YES
+    tf t18:
+      - not a matrix value (ndim=0)
+
+[97;41;1m Difference: [0m
+  only one framework crashed
+  torch: CRASH[torch] step=18 op=LogDet(t10) UpstreamCrash: operation skipped because input(s) already crashed: t10
+  tf:    nan
+
+--------------------------------------------------------------------------------
+Step 19
+  Symbolic: Cholesky(t16:Matrix[SPD](17, 17)) -> t19
+  Result: [97;42;1m MATCH [0m
+
+Torch
+  Concrete: torch.linalg.cholesky(t16)
+  Value:
+    [[ 4.929901  0.        0.       ...  0.        0.        0.      ]
+     [ 1.195061  5.400247  0.       ...  0.        0.        0.      ]
+     [ 0.828143 -0.083103  4.495215 ...  0.        0.        0.      ]
+     ...
+     [-1.41029  -0.612546  0.611904 ...  1.938329  0.        0.      ]
+     [-1.885122 -0.25758   1.171871 ...  0.991534  1.566455  0.      ]
+     [ 0.169439  0.508046 -0.759706 ... -0.295485  1.263766  0.800309]]
+
+TensorFlow
+  Concrete: tf.linalg.cholesky(t16)
+  Value:
+    [[ 4.929901  0.        0.       ...  0.        0.        0.      ]
+     [ 1.195061  5.400247  0.       ...  0.        0.        0.      ]
+     [ 0.828143 -0.083103  4.495215 ...  0.        0.        0.      ]
+     ...
+     [-1.41029  -0.612546  0.611904 ...  1.938329  0.        0.      ]
+     [-1.885122 -0.25758   1.171871 ...  0.991534  1.566455  0.      ]
+     [ 0.169439  0.508046 -0.759706 ... -0.295485  1.263766  0.800309]]
+
+Concrete matrix property checks:
+  Inputs:
+    t16:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: YES
+      - diagonal: NO
+      - positive definite: YES
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 3060.8559797499406
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+  Outputs:
+    torch t19:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 55.32500320605095
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+    tf t19:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 55.32500320605306
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+
+--------------------------------------------------------------------------------
+Step 20
+  Symbolic: Cholesky(t4:Matrix[Random](26, 26)) -> t20
+  Result: [97;41;1m MISMATCH [0m
+
+Torch
+  Concrete: torch.linalg.cholesky(t4)
+  Value:
+    CRASH[torch] step=20 op=Cholesky(t4) _LinAlgError: linalg.cholesky: The factorization could not be completed because the input is not positive-definite (the leading minor of order 1 is not positive-definite).
+
+TensorFlow
+  Concrete: tf.linalg.cholesky(t4)
+  Value:
+    [[          nan 0.000000e+000 2.471758e-314 ... 2.144419e-314
+      2.144393e-314 2.471407e-314]
+     [          nan           nan 2.471801e-314 ... 2.471802e-314
+      2.471798e-314 2.471426e-314]
+     [          nan           nan           nan ... 2.471574e-314
+      2.144393e-314 2.471367e-314]
+     ...
+     [          nan           nan           nan ...           nan
+      2.144393e-314 2.327427e-313]
+     [          nan           nan           nan ...           nan
+                nan 2.471642e-314]
+     [          nan           nan           nan ...           nan
+                nan           nan]]
+
+Concrete matrix property checks:
+  Inputs:
+    t4:
+      - shape: (26, 26)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 100.32045581006112
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 26
+  Outputs:
+    torch t20:
+      - crashed: YES
+    tf t20:
+      - shape: (26, 26)
+      - square: YES
+      - finite: NO
+      - contains NaN: YES
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: UNKNOWN
+      - orthogonal: NO
+      - condition number: UNKNOWN/INF
+      - ill-conditioned: UNKNOWN
+      - rank: UNKNOWN
+
+[97;41;1m Difference: [0m
+  only one framework crashed
+  torch: CRASH[torch] step=20 op=Cholesky(t4) _LinAlgError: linalg.cholesky: The factorization could not be completed because the input is not positive-definite (the leading minor of order 1 is not positive-definite).
+  tf:    [[          nan 0.000000e+000 2.471758e-314 ... 2.144419e-314
+    2.144393e-314 2.471407e-314]
+   [          nan           nan 2.471801e-314 ... 2.471802e-314
+    2.471798e-314 2.471426e-314]
+   [          nan           nan           nan ... 2.471574e-314
+    2.144393e-314 2.471367e-314]
+   ...
+   [          nan           nan           nan ...           nan
+    2.144393e-314 2.327427e-313]
+   [          nan           nan           nan ...           nan
+              nan 2.471642e-314]
+   [          nan           nan           nan ...           nan
+              nan           nan]]
+
+Assumption checks:
+  API-specified assumptions:
+    PyTorch:
+      - square matrix (Cholesky decomposes square matrices): PASS
+      - floating/complex dtype (Cholesky is defined over real/complex numerical matrices): PASS
+      - symmetric/Hermitian (Cholesky assumes real symmetric or complex Hermitian input): [97;41;1m FAIL [0m
+      - positive definite (Cholesky requires all eigenvalues to be positive): [97;41;1m FAIL [0m
+    TensorFlow:
+      - square matrix (TensorFlow Cholesky expects square inner matrix dimensions): PASS
+      - floating/complex dtype (Cholesky is a numerical factorization): PASS
+      - symmetric/Hermitian (TensorFlow Cholesky assumes symmetric/Hermitian input): [97;41;1m FAIL [0m
+      - positive definite (TensorFlow Cholesky requires positive definiteness): [97;41;1m FAIL [0m
+  Implied mathematical/numerical assumptions:
+    - well-conditioned, cond(A) < 1e8 (ill-conditioned matrices can amplify numerical error): PASS
+    - cond(A) (condition number used as a numerical stability diagnostic): 100.32045581006112
+
+--------------------------------------------------------------------------------
+Step 21
+  Symbolic: Solve(t14:Matrix[Random](17, 17), t9:Matrix[Random](17, 17)) -> t21
+  Result: [97;42;1m MATCH [0m
+
+Torch
+  Concrete: torch.linalg.solve(t14, t9)
+  Value:
+    [[ 2.307173e-01  1.364247e-11  2.235175e-12 ...  3.603801e-17
+       3.468418e-18  8.689721e-14]
+     [-2.644275e-02  2.178123e-01 -2.559594e-13 ... -3.275994e-18
+       2.896299e-18 -7.562453e-15]
+     [-1.859974e-03 -5.748656e-03  2.054472e-01 ...  2.013890e-11
+       1.635462e-10  1.418073e-13]
+     ...
+     [ 4.061503e-02  1.132950e-01  4.612116e-02 ...  3.762195e-01
+       6.588990e-08  5.353540e-03]
+     [-2.307027e-01 -3.978756e-02 -1.049287e-01 ...  4.332293e-02
+       3.145556e-01  5.381963e-03]
+     [ 1.627540e+00  6.893673e-02  8.902145e-01 ...  2.210960e-01
+      -1.251006e+00  1.791566e+00]]
+
+TensorFlow
+  Concrete: tf.linalg.solve(t14, t9)
+  Value:
+    [[ 2.307173e-01  1.364247e-11  2.235175e-12 ...  3.603801e-17
+       3.468418e-18  8.689721e-14]
+     [-2.644275e-02  2.178123e-01 -2.559594e-13 ... -3.275994e-18
+       2.896299e-18 -7.562453e-15]
+     [-1.859974e-03 -5.748656e-03  2.054472e-01 ...  2.013890e-11
+       1.635462e-10  1.418073e-13]
+     ...
+     [ 4.061503e-02  1.132950e-01  4.612116e-02 ...  3.762195e-01
+       6.588990e-08  5.353540e-03]
+     [-2.307027e-01 -3.978756e-02 -1.049287e-01 ...  4.332293e-02
+       3.145556e-01  5.381963e-03]
+     [ 1.627540e+00  6.893673e-02  8.902145e-01 ...  2.210960e-01
+      -1.251006e+00  1.791566e+00]]
+
+Concrete matrix property checks:
+  Inputs:
+    t14:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 57.57538146128861
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+    t9:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: YES
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 1.0634684350064325
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+  Outputs:
+    torch t21:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 57.82270780202378
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+    tf t21:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 57.82270780202372
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+
+--------------------------------------------------------------------------------
+Step 22
+  Symbolic: Cholesky(t14:Matrix[Random](17, 17)) -> t22
+  Result: [97;41;1m MISMATCH [0m
+
+Torch
+  Concrete: torch.linalg.cholesky(t14)
+  Value:
+    CRASH[torch] step=22 op=Cholesky(t14) _LinAlgError: linalg.cholesky: The factorization could not be completed because the input is not positive-definite (the leading minor of order 8 is not positive-definite).
+
+TensorFlow
+  Concrete: tf.linalg.cholesky(t14)
+  Value:
+    [[      nan  0.        0.       ...  0.        0.        0.      ]
+     [      nan       nan  0.       ...  0.        0.        0.      ]
+     [      nan       nan       nan ...  0.        0.        0.      ]
+     ...
+     [      nan       nan       nan ...       nan -0.253086  0.15281 ]
+     [      nan       nan       nan ...       nan       nan -0.368267]
+     [      nan       nan       nan ...       nan       nan       nan]]
+
+Concrete matrix property checks:
+  Inputs:
+    t14:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 57.57538146128861
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+  Outputs:
+    torch t22:
+      - crashed: YES
+    tf t22:
+      - shape: (17, 17)
+      - square: YES
+      - finite: NO
+      - contains NaN: YES
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: UNKNOWN
+      - orthogonal: NO
+      - condition number: UNKNOWN/INF
+      - ill-conditioned: UNKNOWN
+      - rank: UNKNOWN
+
+[97;41;1m Difference: [0m
+  only one framework crashed
+  torch: CRASH[torch] step=22 op=Cholesky(t14) _LinAlgError: linalg.cholesky: The factorization could not be completed because the input is not positive-definite (the leading minor of order 8 is not positive-definite).
+  tf:    [[      nan  0.        0.       ...  0.        0.        0.      ]
+   [      nan       nan  0.       ...  0.        0.        0.      ]
+   [      nan       nan       nan ...  0.        0.        0.      ]
+   ...
+   [      nan       nan       nan ...       nan -0.253086  0.15281 ]
+   [      nan       nan       nan ...       nan       nan -0.368267]
+   [      nan       nan       nan ...       nan       nan       nan]]
+
+Assumption checks:
+  API-specified assumptions:
+    PyTorch:
+      - square matrix (Cholesky decomposes square matrices): PASS
+      - floating/complex dtype (Cholesky is defined over real/complex numerical matrices): PASS
+      - symmetric/Hermitian (Cholesky assumes real symmetric or complex Hermitian input): [97;41;1m FAIL [0m
+      - positive definite (Cholesky requires all eigenvalues to be positive): [97;41;1m FAIL [0m
+    TensorFlow:
+      - square matrix (TensorFlow Cholesky expects square inner matrix dimensions): PASS
+      - floating/complex dtype (Cholesky is a numerical factorization): PASS
+      - symmetric/Hermitian (TensorFlow Cholesky assumes symmetric/Hermitian input): [97;41;1m FAIL [0m
+      - positive definite (TensorFlow Cholesky requires positive definiteness): [97;41;1m FAIL [0m
+  Implied mathematical/numerical assumptions:
+    - well-conditioned, cond(A) < 1e8 (ill-conditioned matrices can amplify numerical error): PASS
+    - cond(A) (condition number used as a numerical stability diagnostic): 57.57538146128861
+
+--------------------------------------------------------------------------------
+Step 23
+  Symbolic: LogDet(t19:Matrix[Random](17, 17)) -> t23
+  Result: [97;41;1m MISMATCH [0m
+
+Torch
+  Concrete: torch.linalg.logdet(t19)
+  Value:
+    18.759303990595853
+
+TensorFlow
+  Concrete: tf.linalg.logdet(t19)
+  Value:
+    nan
+
+Concrete matrix property checks:
+  Inputs:
+    t19:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 55.32500320605095
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+  Outputs:
+    torch t23:
+      - not a matrix value (ndim=0)
+    tf t23:
+      - not a matrix value (ndim=0)
+
+[97;41;1m Difference: [0m
+  max abs diff: nan
+  first mismatch index: ()
+  torch: 18.759303990595853
+  tf:    nan
+
+Assumption checks:
+  API-specified assumptions:
+    PyTorch:
+      - square matrix (determinant is only defined for square matrices): PASS
+      - floating/complex dtype (logdet is a numerical linear algebra operation): PASS
+      - determinant nonzero for finite output (det(A)=0 makes log(det(A)) singular / -inf): PASS
+      - determinant positive for finite real logdet (real log(x) requires x > 0): PASS
+    TensorFlow:
+      - square matrix (TensorFlow requires shape [..., M, M]): PASS
+      - floating/complex dtype (TensorFlow only accepts float/complex matrix dtypes): PASS
+      - Hermitian/symmetric positive definite (TensorFlow logdet only supports HPD matrices): [97;41;1m FAIL [0m
+  Implied mathematical/numerical assumptions:
+    - determinant nonzero (zero determinant means the matrix is singular): PASS
+    - determinant positive (needed for a finite real-valued log(det(A))): PASS
+    - symmetric/Hermitian-real (relevant because HPD implies symmetry/Hermitian structure): [97;41;1m FAIL [0m
+    - positive definite (all eigenvalues must be positive for Cholesky/HPD assumptions): [97;41;1m FAIL [0m
+    - well-conditioned, cond(A) < 1e8 (large condition number means numerical instability is more likely): PASS
+    - det(A) (raw determinant used to interpret logdet behavior): 140301465.51455343
+    - cond(A) (condition number used as a numerical stability diagnostic): 55.32500320605095
+
+--------------------------------------------------------------------------------
+Step 24
+  Symbolic: MatMul(t19:Matrix[Random](17, 17), t21:Matrix[Random](17, 17)) -> t24
+  Result: [97;42;1m MATCH [0m
+
+Torch
+  Concrete: torch.matmul(t19, t21)
+  Value:
+    [[ 1.137414e+00  6.725601e-11  1.101919e-11 ...  1.776638e-16
+       1.709896e-17  4.283946e-13]
+     [ 1.329239e-01  1.176241e+00  1.288926e-12 ...  2.537645e-17
+       1.978570e-17  6.300836e-14]
+     [ 1.849035e-01 -4.394235e-02  9.235295e-01 ...  9.052870e-11
+       7.351755e-10  7.100460e-13]
+     ...
+     [-1.075024e+00 -5.954865e-01  6.142813e-01 ...  7.292369e-01
+       1.285343e-07  1.402716e-02]
+     [-7.372696e-01 -5.087494e-01 -3.801436e-02 ...  4.408979e-01
+       4.927373e-01 -7.464452e-03]
+     [ 7.478415e-01 -4.578248e-01  1.071632e+00 ...  1.205279e-01
+      -6.036666e-01  1.505207e+00]]
+
+TensorFlow
+  Concrete: tf.linalg.matmul(t19, t21)
+  Value:
+    [[ 1.137414e+00  6.725601e-11  1.101919e-11 ...  1.776638e-16
+       1.709896e-17  4.283946e-13]
+     [ 1.329239e-01  1.176241e+00  1.288926e-12 ...  2.537645e-17
+       1.978570e-17  6.300836e-14]
+     [ 1.849035e-01 -4.394235e-02  9.235295e-01 ...  9.052870e-11
+       7.351755e-10  7.100460e-13]
+     ...
+     [-1.075024e+00 -5.954865e-01  6.142813e-01 ...  7.292369e-01
+       1.285343e-07  1.402716e-02]
+     [-7.372696e-01 -5.087494e-01 -3.801436e-02 ...  4.408979e-01
+       4.927373e-01 -7.464452e-03]
+     [ 7.478415e-01 -4.578248e-01  1.071632e+00 ...  1.205279e-01
+      -6.036666e-01  1.505207e+00]]
+
+Concrete matrix property checks:
+  Inputs:
+    t19:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 55.32500320605095
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+    t21:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 57.82270780202378
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+  Outputs:
+    torch t24:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 58.19849334821152
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+    tf t24:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 58.198493348209865
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+
+--------------------------------------------------------------------------------
+Step 25
+  Symbolic: Sum(t19:Matrix[Random](17, 17)) -> t25
+  Result: [97;42;1m MATCH [0m
+
+Torch
+  Concrete: torch.sum(t19)
+  Value:
+    73.87476928310129
+
+TensorFlow
+  Concrete: tf.reduce_sum(t19)
+  Value:
+    73.87476928310126
+
+Concrete matrix property checks:
+  Inputs:
+    t19:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 55.32500320605095
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+  Outputs:
+    torch t25:
+      - not a matrix value (ndim=0)
+    tf t25:
+      - not a matrix value (ndim=0)
+
+--------------------------------------------------------------------------------
+Step 26
+  Symbolic: Cholesky(t4:Matrix[Random](26, 26)) -> t26
+  Result: [97;41;1m MISMATCH [0m
+
+Torch
+  Concrete: torch.linalg.cholesky(t4)
+  Value:
+    CRASH[torch] step=26 op=Cholesky(t4) _LinAlgError: linalg.cholesky: The factorization could not be completed because the input is not positive-definite (the leading minor of order 1 is not positive-definite).
+
+TensorFlow
+  Concrete: tf.linalg.cholesky(t4)
+  Value:
+    [[      nan  0.        1.373261 ...  3.32168   1.805717 -2.483459]
+     [      nan       nan  0.702166 ... -1.102728  1.216381 -0.049508]
+     [      nan       nan       nan ...  1.403561  0.126855 -1.412778]
+     ...
+     [      nan       nan       nan ...       nan  1.630827  0.826915]
+     [      nan       nan       nan ...       nan       nan -0.426082]
+     [      nan       nan       nan ...       nan       nan       nan]]
+
+Concrete matrix property checks:
+  Inputs:
+    t4:
+      - shape: (26, 26)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 100.32045581006112
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 26
+  Outputs:
+    torch t26:
+      - crashed: YES
+    tf t26:
+      - shape: (26, 26)
+      - square: YES
+      - finite: NO
+      - contains NaN: YES
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: UNKNOWN
+      - orthogonal: NO
+      - condition number: UNKNOWN/INF
+      - ill-conditioned: UNKNOWN
+      - rank: UNKNOWN
+
+[97;41;1m Difference: [0m
+  only one framework crashed
+  torch: CRASH[torch] step=26 op=Cholesky(t4) _LinAlgError: linalg.cholesky: The factorization could not be completed because the input is not positive-definite (the leading minor of order 1 is not positive-definite).
+  tf:    [[      nan  0.        1.373261 ...  3.32168   1.805717 -2.483459]
+   [      nan       nan  0.702166 ... -1.102728  1.216381 -0.049508]
+   [      nan       nan       nan ...  1.403561  0.126855 -1.412778]
+   ...
+   [      nan       nan       nan ...       nan  1.630827  0.826915]
+   [      nan       nan       nan ...       nan       nan -0.426082]
+   [      nan       nan       nan ...       nan       nan       nan]]
+
+Assumption checks:
+  API-specified assumptions:
+    PyTorch:
+      - square matrix (Cholesky decomposes square matrices): PASS
+      - floating/complex dtype (Cholesky is defined over real/complex numerical matrices): PASS
+      - symmetric/Hermitian (Cholesky assumes real symmetric or complex Hermitian input): [97;41;1m FAIL [0m
+      - positive definite (Cholesky requires all eigenvalues to be positive): [97;41;1m FAIL [0m
+    TensorFlow:
+      - square matrix (TensorFlow Cholesky expects square inner matrix dimensions): PASS
+      - floating/complex dtype (Cholesky is a numerical factorization): PASS
+      - symmetric/Hermitian (TensorFlow Cholesky assumes symmetric/Hermitian input): [97;41;1m FAIL [0m
+      - positive definite (TensorFlow Cholesky requires positive definiteness): [97;41;1m FAIL [0m
+  Implied mathematical/numerical assumptions:
+    - well-conditioned, cond(A) < 1e8 (ill-conditioned matrices can amplify numerical error): PASS
+    - cond(A) (condition number used as a numerical stability diagnostic): 100.32045581006112
+
+--------------------------------------------------------------------------------
+Step 27
+  Symbolic: Solve(t11:Matrix[Random](17, 17), t15:Matrix[Random](17, 17)) -> t27
+  Result: [97;42;1m BOTH CRASHED [0m
+
+Torch
+  Concrete: torch.linalg.solve(t11, t15)
+  Value:
+    CRASH[torch] step=27 op=Solve(t11, t15) UpstreamCrash: operation skipped because input(s) already crashed: t11
+
+TensorFlow
+  Concrete: tf.linalg.solve(t11, t15)
+  Value:
+    CRASH[tf] step=27 op=Solve(t11, t15) InvalidArgumentError: {{function_node __wrapped__MatrixSolve_device_/job:localhost/replica:0/task:0/device:CPU:0}} Input matrix is not invertible. [Op:MatrixSolve] name: 
+
+Concrete matrix property checks:
+  Inputs:
+    t11:
+      - crashed: YES
+    t15:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: YES
+      - diagonal: YES
+      - positive definite: YES
+      - singular: NO
+      - orthogonal: YES
+      - condition number: 1.0000000000000047
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+  Outputs:
+    torch t27:
+      - crashed: YES
+    tf t27:
+      - crashed: YES
+
+--------------------------------------------------------------------------------
+Step 28
+  Symbolic: Solve(t16:Matrix[SPD](17, 17), x8:Matrix[SPD](17, 17)) -> t28
+  Result: [97;42;1m MATCH [0m
+
+Torch
+  Concrete: torch.linalg.solve(t16, x8)
+  Value:
+    [[ 87.9078   -79.525665  -2.085252 ... -34.275823 -95.740662  19.950335]
+     [-58.994598  55.367447   0.511352 ...  22.267375  73.68984  -13.601628]
+     [-36.248363  32.845676   2.357288 ...  14.559027  43.044221  -8.135575]
+     ...
+     [ 36.937925 -36.158366  -0.569996 ... -11.939952 -48.172628   5.430841]
+     [-41.830491  39.716091  -0.617204 ...  17.499059  71.780522 -11.07778 ]
+     [ 49.710972 -45.502508   0.980642 ... -24.705054 -68.945201  20.251685]]
+
+TensorFlow
+  Concrete: tf.linalg.solve(t16, x8)
+  Value:
+    [[ 87.9078   -79.525665  -2.085252 ... -34.275823 -95.740662  19.950335]
+     [-58.994598  55.367447   0.511352 ...  22.267375  73.68984  -13.601628]
+     [-36.248363  32.845676   2.357288 ...  14.559027  43.044221  -8.135575]
+     ...
+     [ 36.937925 -36.158366  -0.569996 ... -11.939952 -48.172628   5.430841]
+     [-41.830491  39.716091  -0.617204 ...  17.499059  71.780522 -11.07778 ]
+     [ 49.710972 -45.502508   0.980642 ... -24.705054 -68.945201  20.251685]]
+
+Concrete matrix property checks:
+  Inputs:
+    t16:
+      - shape: (17, 17)
+      - square: YES
+      - finite: YES
+      - contains NaN: NO
+      - contains Inf: NO
+      - symmetric: YES
+      - diagonal: NO
+      - positive definite: YES
+      - singular: NO
+      - orthogonal: NO
+      - condition number: 3060.8559797499406
+      - ill-conditioned (cond >= 1e+08): NO
+      - rank: 17
+    x8:
+      - shape: (17, 17)
+      - square: YES
+      - finite: NO
+      - contains NaN: NO
+      - contains Inf: YES
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: YES
+      - singular: YES
+      - orthogonal: NO
+      - condition number: UNKNOWN/INF
+      - ill-conditioned: UNKNOWN
+      - rank: 0
+  Outputs:
+    torch t28:
+      - shape: (17, 17)
+      - square: YES
+      - finite: NO
+      - contains NaN: YES
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: UNKNOWN
+      - orthogonal: NO
+      - condition number: UNKNOWN/INF
+      - ill-conditioned: UNKNOWN
+      - rank: UNKNOWN
+    tf t28:
+      - shape: (17, 17)
+      - square: YES
+      - finite: NO
+      - contains NaN: YES
+      - contains Inf: NO
+      - symmetric: NO
+      - diagonal: NO
+      - positive definite: NO
+      - singular: UNKNOWN
+      - orthogonal: NO
+      - condition number: UNKNOWN/INF
+      - ill-conditioned: UNKNOWN
+      - rank: UNKNOWN
+
+--------------------------------------------------------------------------------
+Step 29
+  Symbolic: Sum(t20:Matrix[Random](26, 26)) -> t29
+  Result: [97;41;1m MISMATCH [0m
+
+Torch
+  Concrete: torch.sum(t20)
+  Value:
+    CRASH[torch] step=29 op=Sum(t20) UpstreamCrash: operation skipped because input(s) already crashed: t20
+
+TensorFlow
+  Concrete: tf.reduce_sum(t20)
+  Value:
+    nan
+
+Concrete matrix property checks:
+  Inputs:
+    t20:
+      - crashed: YES
+  Outputs:
+    torch t29:
+      - crashed: YES
+    tf t29:
+      - not a matrix value (ndim=0)
+
+[97;41;1m Difference: [0m
+  only one framework crashed
+  torch: CRASH[torch] step=29 op=Sum(t20) UpstreamCrash: operation skipped because input(s) already crashed: t20
+  tf:    nan

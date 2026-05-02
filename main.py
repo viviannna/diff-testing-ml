@@ -17,29 +17,28 @@ def make_output_dir(name) -> Path:
     return output_dir
 
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    # Run parameters
-    NUM_SEED_VARS = 3 
-    SEQUENCE_LEN = 10
-    MATRIX_MAX_SIZE = 32
-    RANDOM_SEED = 5
 
-    RUN_NAME = f"seed_{RANDOM_SEED}_seq_{SEQUENCE_LEN}_max_{MATRIX_MAX_SIZE}"
+def main_loop(num_seed_values, seq_length, matrix_max_size, random_seed):
+
+   
+
+    RUN_NAME = f"seed_{random_seed}_seq_{seq_length}_max_{matrix_max_size}"
 
 
     
-    rng = random.Random(RANDOM_SEED)
+    rng = random.Random(random_seed)
 
-    help = Printer(rng, RANDOM_SEED) 
+    help = Printer(rng, random_seed) 
     output_dir = make_output_dir(RUN_NAME)
 
     # 1. SYMBOLIC EXECUTION 
     seed_values, ops_applied, values = build_sequence(
-        num_seed_values=NUM_SEED_VARS,
-        seq_length=SEQUENCE_LEN,
+        num_seed_values=num_seed_values,
+        seq_length=seq_length,
         rng=rng,
-        max_size=MATRIX_MAX_SIZE,
+        max_size=matrix_max_size,
     )
 
     help.print_generated_seq(ops_applied, values, seed_values)
@@ -82,7 +81,7 @@ if __name__ == "__main__":
     print("Done generating the TensorFlow steps")
 
     print("Running summary report")
-    summary_report = compare_envs(torch_env, tf_env, NUM_SEED_VARS, SEQUENCE_LEN, RANDOM_SEED, MATRIX_MAX_SIZE, atol=1e-5, rtol=1e-5)
+    summary_report = compare_envs(torch_env, tf_env, num_seed_values, seq_length, random_seed, matrix_max_size, atol=1e-5, rtol=1e-5)
     print(summary_report)
     (output_dir / "summary.txt").write_text(summary_report)
 
@@ -95,10 +94,10 @@ if __name__ == "__main__":
     tf_exec=tf_exec,
     torch_env=torch_env,
     tf_env=tf_env,
-    num_seed_values=NUM_SEED_VARS,
-    seq_length=SEQUENCE_LEN,
-    seed=RANDOM_SEED,
-    max_size=MATRIX_MAX_SIZE,
+    num_seed_values=num_seed_values,
+    seq_length=seq_length,
+    seed=random_seed,
+    max_size=matrix_max_size,
     atol=1e-5,
     rtol=1e-5,
     use_color=True,
@@ -108,4 +107,13 @@ if __name__ == "__main__":
     print("Done")
 
 
+
+if __name__ == "__main__":
+
+    for i in range(200):
+
+        main_loop(num_seed_values=20, seq_length=10, matrix_max_size=32, random_seed=i)
+        main_loop(num_seed_values=20, seq_length=20, matrix_max_size=32, random_seed=i)
+        main_loop(num_seed_values=20, seq_length=30, matrix_max_size=32, random_seed=i)
+        main_loop(num_seed_values=20, seq_length=40, matrix_max_size=32, random_seed=i)
 

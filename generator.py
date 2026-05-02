@@ -13,6 +13,39 @@ STRUCTURED_SQUARE_TYPES = {
     MatrixInstance.IllConditioned,
 }
 
+# More Random than each individual structured type, so the generated pool
+# contains both generic matrices and property-targeted matrices.
+MATRIX_TYPE_WEIGHTS = {
+    MatrixInstance.Random: 4.0,
+    MatrixInstance.Symmetric: 1.0,
+    MatrixInstance.SPD: 1.5,
+    MatrixInstance.Singular: 1.0,
+    MatrixInstance.Diagonal: 1.0,
+    MatrixInstance.Orthogonal: 1.0,
+    MatrixInstance.IllConditioned: 1.0,
+}
+
+
+def choose_matrix_type_for_shape(
+    shape: tuple[int, int],
+    rng: random.Random,
+) -> MatrixInstance:
+    """
+    Pick a matrix annotation that is compatible with this shape.
+
+    Structured matrix properties like SPD, Diagonal, Orthogonal, Singular,
+    and IllConditioned only make sense for square matrices. Rectangular
+    helper matrices are therefore always Random.
+    """
+    rows, cols = shape
+
+    if rows != cols:
+        return MatrixInstance.Random
+
+    choices = list(MatrixTypes)
+    weights = [MATRIX_TYPE_WEIGHTS.get(t, 1.0) for t in choices]
+    return rng.choices(choices, weights=weights, k=1)[0]
+
 
 # Boolean check that the shapes of the arguments are compatible with the operation
 def shapes_work(op: Operation, args: list[Value]) -> bool:
@@ -195,9 +228,9 @@ def create_compatible_shape_pool(
     """
     Create extra compatible matrix Values for a base shape.
 
-    For Random matrices, include rectangular values useful for matmul.
-    For structured matrix types, preserve square shape because their properties
-    only make sense for square matrices.
+    Important: these helper matrices do NOT all inherit the base matrix type.
+    Each helper gets its own compatible matrix type. This avoids runs where a
+    whole x0-x4 block is Diagonal, a whole x5-x9 block is Orthogonal, etc.
     """
 
     new_values: list[Value] = []
@@ -231,12 +264,14 @@ def create_compatible_shape_pool(
         raise ValueError(f"Unknown matrix type: {matrix_type}")
 
     for shape in compatible_shapes:
+        helper_type = choose_matrix_type_for_shape(shape, rng)
+
         new_values.append(
             Value(
                 name=f"x{next_seed_id}",
                 type=Type.Matrix,
                 shape=shape,
-                matrix_type=matrix_type,
+                matrix_type=helper_type,
             )
         )
         next_seed_id += 1
@@ -253,7 +288,7 @@ def instantiate_seed_matrices(
     next_seed_id = 0
 
     for _ in range(count):
-        matrix_type = rng.choice(MatrixTypes)
+        matrix_type = choose_matrix_type_for_shape((1, 1), rng)
 
         if matrix_type == MatrixInstance.Random:
             rows = rng.randint(1, max_size)
